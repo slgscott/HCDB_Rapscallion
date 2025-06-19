@@ -24,7 +24,7 @@ class EmailService:
             msg['To'] = to_email
             msg['Subject'] = subject
             
-            msg.attach(MIMEText(body, 'html' if is_html else 'plain'))
+            msg.attach(MIMEText(body, 'html' if is_html else 'plain', 'utf-8'))
             
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()

@@ -58,13 +58,13 @@ class AutomationManager:
             name='Tide Data Update - Daily'
         )
         
-        # Crossing times updates: Daily at 04:00 UK time
-        self.scheduler.add_job(
-            func=self._run_crossing_update,
-            trigger=CronTrigger(hour=4, minute=0, timezone='Europe/London'),
-            id='crossing_daily',
-            name='Crossing Times Update - Daily'
-        )
+        # Crossing times updates: Disabled - manual only
+        # self.scheduler.add_job(
+        #     func=self._run_crossing_update,
+        #     trigger=CronTrigger(hour=4, minute=0, timezone='Europe/London'),
+        #     id='crossing_daily',
+        #     name='Crossing Times Update - Daily'
+        # )
     
     def _run_weather_update(self):
         """Run weather data update"""
