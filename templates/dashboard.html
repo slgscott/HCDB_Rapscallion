@@ -104,11 +104,11 @@
                                 <div class="row g-2">
                                     <div class="col-6">
                                         <label for="crossing_from_date" class="form-label text-muted small mb-1">From Date</label>
-                                        <input type="text" class="form-control form-control-sm" id="crossing_from_date" name="crossing_from_date" placeholder="YYYY-MM-DD">
+                                        <input type="text" class="form-control form-control-sm" id="crossing_from_date" name="crossing_from_date" placeholder="DD-MM-YYYY">
                                     </div>
                                     <div class="col-6">
                                         <label for="crossing_to_date" class="form-label text-muted small mb-1">To Date</label>
-                                        <input type="text" class="form-control form-control-sm" id="crossing_to_date" name="crossing_to_date" placeholder="YYYY-MM-DD">
+                                        <input type="text" class="form-control form-control-sm" id="crossing_to_date" name="crossing_to_date" placeholder="DD-MM-YYYY">
                                     </div>
                                 </div>
                             </div>
@@ -771,9 +771,27 @@ function getCrossingDates() {
     const fromDate = document.getElementById('crossing_from_date').value;
     const toDate = document.getElementById('crossing_to_date').value;
     
+    // Convert DD-MM-YYYY to YYYY-MM-DD format for backend
+    function convertDateFormat(dateStr) {
+        if (!dateStr) return null;
+        
+        // Check if it's already in YYYY-MM-DD format
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            return dateStr;
+        }
+        
+        // Handle DD-MM-YYYY format
+        if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(dateStr)) {
+            const [day, month, year] = dateStr.split('-');
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+        
+        return dateStr; // Return as-is if format not recognized
+    }
+    
     return {
-        from_date: fromDate || null,
-        to_date: toDate || null
+        from_date: convertDateFormat(fromDate),
+        to_date: convertDateFormat(toDate)
     };
 }
 
