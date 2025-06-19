@@ -24,6 +24,10 @@ class EmailService:
             msg['To'] = to_email
             msg['Subject'] = subject
             
+            # Ensure body is properly encoded
+            if isinstance(body, str):
+                body = body.encode('utf-8', errors='replace').decode('utf-8')
+            
             msg.attach(MIMEText(body, 'html' if is_html else 'plain', 'utf-8'))
             
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
