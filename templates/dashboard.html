@@ -23,11 +23,7 @@
             <i class="fas fa-clock me-1"></i>Schedule
         </button>
     </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button">
-            <i class="fas fa-cog me-1"></i>Settings
-        </button>
-    </li>
+
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button">
             <i class="fas fa-file-alt me-1"></i>Logs
@@ -186,7 +182,7 @@
         </div>
         
         <div class="row">
-            <div class="col-12">
+            <div class="col-md-8 mb-3">
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-info-circle me-2"></i>Schedule Information
@@ -212,16 +208,11 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Settings Tab -->
-    <div class="tab-pane fade" id="settings" role="tabpanel">
-        <div class="row">
-            <div class="col-md-6 mb-3">
+            
+            <div class="col-md-4 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-envelope me-2"></i>Email Settings
+                        <i class="fas fa-envelope me-2"></i>Email Test
                     </div>
                     <div class="card-body">
                         <button class="btn btn-primary btn-lg w-100" onclick="testEmail()">
@@ -233,23 +224,9 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-cog me-2"></i>System Configuration
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted mb-3">Database and system configuration options</p>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-1"></i>
-                            <small>Data export functions have been moved to the View Data tab for better organization</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+
 
     <!-- Logs Tab -->
     <div class="tab-pane fade" id="logs" role="tabpanel">
