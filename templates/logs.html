@@ -87,7 +87,7 @@
                                     <strong class="component-name">{{ log.component }}</strong>
                                 </div>
                                 <small class="text-muted">
-                                    {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+                                    {{ format_datetime_uk(log.timestamp) }}
                                 </small>
                             </div>
                             

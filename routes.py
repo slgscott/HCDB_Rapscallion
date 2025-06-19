@@ -22,6 +22,11 @@ crossing_service = CrossingService()
 email_service = EmailService()
 system_logger = SystemLogger()
 
+# Make UK timezone formatting available to all templates
+@app.context_processor
+def inject_utility_functions():
+    return dict(format_datetime_uk=format_datetime_uk)
+
 @app.route('/')
 def index():
     if not check_auth():
@@ -127,7 +132,8 @@ def logs():
                              'level': level_filter,
                              'component': component_filter,
                              'date': date_filter
-                         })
+                         },
+                         format_datetime_uk=format_datetime_uk)
 
 # Data management routes
 @app.route('/data/<table_name>')

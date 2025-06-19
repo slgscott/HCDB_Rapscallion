@@ -306,7 +306,7 @@
                                         {% for log in recent_logs %}
                                             <tr>
                                                 <td>
-                                                    <small>{{ log.timestamp.strftime('%H:%M:%S') }}</small>
+                                                    <small>{{ format_datetime_uk(log.timestamp).split(' ')[1] }}</small>
                                                 </td>
                                                 <td>
                                                     <span class="badge 
