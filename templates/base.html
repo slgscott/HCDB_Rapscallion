@@ -15,34 +15,74 @@
     <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
     
     <style>
-        /* Clean simple calendar styling */
-        .simple-calendar {
-            position: relative;
+        /* Custom date picker styling */
+        .custom-date-picker {
+            cursor: pointer;
             background-color: var(--bs-body-bg);
             border: 1px solid var(--bs-border-color);
             color: var(--bs-body-color);
         }
         
-        .simple-calendar:focus {
+        .custom-date-picker:focus {
             border-color: var(--bs-primary);
             box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
         }
         
-        /* Style the calendar icon */
-        .simple-calendar::-webkit-calendar-picker-indicator {
+        /* Custom calendar popup */
+        .custom-calendar {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 0.5rem;
+            margin-top: 2px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        }
+        
+        .calendar-header {
+            font-weight: bold;
+            color: var(--bs-secondary);
+            padding: 0.25rem;
+            font-size: 0.75rem;
+        }
+        
+        .calendar-day {
+            padding: 0.25rem;
             cursor: pointer;
-            filter: invert(1);
-            opacity: 0.8;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            transition: all 0.2s;
         }
         
-        .simple-calendar::-webkit-calendar-picker-indicator:hover {
-            opacity: 1;
+        .calendar-day:hover {
+            background-color: var(--bs-primary);
+            color: white;
         }
         
-        /* Hide inner controls but keep calendar functionality */
-        .simple-calendar::-webkit-inner-spin-button,
-        .simple-calendar::-webkit-clear-button {
-            display: none;
+        .calendar-day.today {
+            background-color: var(--bs-secondary);
+            color: white;
+        }
+        
+        .calendar-day.selected {
+            background-color: var(--bs-primary);
+            color: white;
+        }
+        
+        .calendar-day.other-month {
+            color: var(--bs-secondary);
+            opacity: 0.5;
         }
     </style>
 </head>
