@@ -310,13 +310,7 @@
                         <i class="fas fa-road fa-2x mb-2"></i>
                         <h3>{{ crossing_count }}</h3>
                         <p class="mb-0">Crossing Times</p>
-                        <small class="text-white-50">Updated: 
-                        {% if last_crossing_update %}
-                        {{ format_datetime_uk(last_crossing_update) }}
-                        {% else %}
-                        Never
-                        {% endif %}
-                        </small>
+                        <small class="text-white-50">Updated: {{ last_crossing_update|default('Never') }}</small>
                     </div>
                 </div>
                 <div class="text-center mt-2">
@@ -332,13 +326,7 @@
                         <i class="fas fa-water fa-2x mb-2"></i>
                         <h3>{{ tide_count }}</h3>
                         <p class="mb-0">Tide Records</p>
-                        <small class="text-white-50">Updated: 
-                        {% if last_tide_update %}
-                        {{ format_datetime_uk(last_tide_update) }}
-                        {% else %}
-                        Never
-                        {% endif %}
-                        </small>
+                        <small class="text-white-50">Updated: {{ last_tide_update|default('Never') }}</small>
                     </div>
                 </div>
                 <div class="text-center mt-2">
@@ -354,13 +342,7 @@
                         <i class="fas fa-cloud fa-2x mb-2"></i>
                         <h3>{{ weather_count }}</h3>
                         <p class="mb-0">Weather Records</p>
-                        <small class="text-white-50">Updated: 
-                        {% if last_weather_update %}
-                        {{ format_datetime_uk(last_weather_update) }}
-                        {% else %}
-                        Never
-                        {% endif %}
-                        </small>
+                        <small class="text-white-50">Updated: {{ last_weather_update|default('Never') }}</small>
                     </div>
                 </div>
                 <div class="text-center mt-2">
