@@ -40,9 +40,9 @@ class EmailService:
     
     def send_test_email(self, to_email):
         """Send a test email"""
-        subject = "Holy Island Database Administrator - Test Email"
+        subject = "HCDB_Rapscallion - Test Email"
         body = f"""
-        This is a test email from the Holy Island Database Administrator system.
+        This is a test email from the HCDB_Rapscallion system.
         
         Sent at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}
         
@@ -53,7 +53,7 @@ class EmailService:
     
     def send_update_notification(self, to_email, update_type, result):
         """Send notification for successful data update"""
-        subject = f"Holy Island DB - {update_type} Update Completed"
+        subject = f"HCDB_Rapscallion - {update_type} Update Completed"
         
         body = f"""
         The {update_type} data update has completed successfully.
@@ -71,7 +71,7 @@ class EmailService:
     
     def send_error_notification(self, to_email, operation, error_details):
         """Send notification for errors"""
-        subject = f"Holy Island DB - Error: {operation}"
+        subject = f"HCDB_Rapscallion - Error: {operation}"
         
         body = f"""
         An error occurred during the {operation} operation.
@@ -90,10 +90,10 @@ class EmailService:
     
     def send_daily_report(self, to_email, stats):
         """Send daily summary report"""
-        subject = "Holy Island DB - Daily Report"
+        subject = "HCDB_Rapscallion - Daily Report"
         
         body = f"""
-        Daily Report - Holy Island Database Administrator
+        Daily Report - HCDB_Rapscallion Database Administrator
         
         Date: {datetime.utcnow().strftime('%Y-%m-%d')}
         
@@ -109,7 +109,7 @@ class EmailService:
         
         System Status: {stats.get('system_status', 'Unknown')}
         
-        This is an automated daily report from the Holy Island Database Administrator.
+        This is an automated daily report from the HCDB_Rapscallion Database Administrator.
         """
         
         return self.send_email(to_email, subject, body)
