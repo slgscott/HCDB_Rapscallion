@@ -181,8 +181,10 @@ class TideService:
             if not api_key:
                 raise ValueError("UKHO_API_KEY not found in environment variables")
             
-            # Holy Island area station
-            station_id = "0113"  # Berwick-upon-Tweed (closest to Holy Island)
+            # Try different station IDs for Holy Island area
+            # 0113 = Berwick-upon-Tweed (original)
+            # Let's try Seahouses or other nearby stations
+            station_id = "0114"  # Try alternative station ID
             
             # Get 7 days of tide predictions
             start_date = datetime.utcnow().date()
@@ -199,11 +201,25 @@ class TideService:
             }
             
             if dry_run:
-                # For test runs, show what would be processed without making the API call
-                self.logger.log('TIDE', f'TEST RUN: Would request tide data for station {station_id} from {start_date} to {end_date}')
-                self.logger.log('TIDE', f'TEST RUN: API endpoint: {url}')
-                self.logger.log('TIDE', f'TEST RUN: Headers configured: {bool(api_key)}')
-                return f"Test setup complete: Station {station_id}, dates {start_date} to {end_date}, API key configured: {bool(api_key)}"
+                # For test runs, try multiple station IDs to find the correct one
+                test_stations = ["0113", "0114", "0112", "0115", "0111"]
+                self.logger.log('TIDE', f'TEST RUN: Testing multiple station IDs for Holy Island area')
+                
+                for test_id in test_stations:
+                    test_url = f"https://admiraltyapi.azure-api.net/uktidalapi/api/V1/Stations/{test_id}/TidalPredictions"
+                    try:
+                        test_response = requests.get(test_url, headers=headers, params=params, timeout=10)
+                        if test_response.status_code == 200:
+                            self.logger.log('TIDE', f'TEST RUN: ✓ Station {test_id} works! Found valid endpoint')
+                            return f"Found working station: {test_id}"
+                        elif test_response.status_code == 404:
+                            self.logger.log('TIDE', f'TEST RUN: ✗ Station {test_id} not found (404)')
+                        else:
+                            self.logger.log('TIDE', f'TEST RUN: ? Station {test_id} returned {test_response.status_code}')
+                    except Exception as e:
+                        self.logger.log('TIDE', f'TEST RUN: ✗ Station {test_id} error: {str(e)[:100]}')
+                
+                return "Tested multiple station IDs - check logs for results"
             
             response = requests.get(url, headers=headers, params=params, timeout=30)
             response.raise_for_status()
