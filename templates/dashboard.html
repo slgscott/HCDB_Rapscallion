@@ -312,6 +312,8 @@
                         <p class="mb-0">Crossing Times</p>
                         {% if last_crossing_update %}
                         <small class="text-white-50">Updated: {{ format_datetime_uk(last_crossing_update) }}</small>
+                        {% else %}
+                        <small class="text-white-50">No update data</small>
                         {% endif %}
                     </div>
                 </div>
