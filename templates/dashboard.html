@@ -237,36 +237,13 @@
             <div class="col-md-6 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-download me-2"></i>Data Export
+                        <i class="fas fa-cog me-2"></i>System Configuration
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-6">
-                                <a href="{{ url_for('export_data', table_name='crossing_times', format='csv') }}" 
-                                   class="btn btn-outline-primary btn-lg w-100 mb-2">
-                                    <i class="fas fa-file-csv me-1"></i>Crossing CSV
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{{ url_for('export_data', table_name='tide_data', format='csv') }}" 
-                                   class="btn btn-outline-primary btn-lg w-100 mb-2">
-                                    <i class="fas fa-file-csv me-1"></i>Tide CSV
-                                </a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <a href="{{ url_for('export_data', table_name='weather_data', format='csv') }}" 
-                                   class="btn btn-outline-primary btn-lg w-100">
-                                    <i class="fas fa-file-csv me-1"></i>Weather CSV
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{{ url_for('export_data', table_name='crossing_times', format='json') }}" 
-                                   class="btn btn-outline-secondary btn-lg w-100">
-                                    <i class="fas fa-file-code me-1"></i>JSON Export
-                                </a>
-                            </div>
+                        <p class="text-muted mb-3">Database and system configuration options</p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <small>Data export functions have been moved to the View Data tab for better organization</small>
                         </div>
                     </div>
                 </div>
@@ -354,6 +331,11 @@
                         <p class="mb-0">Crossing Times</p>
                     </div>
                 </div>
+                <div class="text-center mt-2">
+                    <a href="{{ url_for('export_data', table_name='crossing_times') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-download me-1"></i>Export CSV
+                    </a>
+                </div>
             </div>
             
             <div class="col-md-4 mb-3">
@@ -364,6 +346,11 @@
                         <p class="mb-0">Tide Records</p>
                     </div>
                 </div>
+                <div class="text-center mt-2">
+                    <a href="{{ url_for('export_data', table_name='tide_data') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-download me-1"></i>Export CSV
+                    </a>
+                </div>
             </div>
             
             <div class="col-md-4 mb-3">
@@ -373,6 +360,11 @@
                         <h3>{{ weather_count }}</h3>
                         <p class="mb-0">Weather Records</p>
                     </div>
+                </div>
+                <div class="text-center mt-2">
+                    <a href="{{ url_for('export_data', table_name='weather_data') }}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-download me-1"></i>Export CSV
+                    </a>
                 </div>
             </div>
         </div>
