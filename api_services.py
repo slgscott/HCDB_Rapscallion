@@ -401,58 +401,38 @@ class CrossingService:
                     self.logger.log('CROSSING', f'Could not extract month/year from {actual_url}', level='WARNING')
                     continue
                 
-                # Find all table rows - debug the HTML structure
-                rows = soup.find_all('tr', class_='row')
-                self.logger.log('CROSSING', f'Found {len(rows)} rows with class="row"', level='INFO')
-                
-                # If no rows found with class='row', try finding all tr elements
-                if len(rows) == 0:
-                    all_rows = soup.find_all('tr')
-                    self.logger.log('CROSSING', f'Found {len(all_rows)} total tr elements', level='INFO')
-                    # Use first few rows for debugging
-                    for i, row in enumerate(all_rows[:5]):
-                        self.logger.log('CROSSING', f'Row {i}: {row.get("class", "no-class")} - {row.get_text(strip=True)[:100]}', level='INFO')
-                    rows = all_rows
+                # Find data rows with classes 'row1' or 'row2' 
+                rows = soup.find_all('tr', class_=['row1', 'row2'])
+                self.logger.log('CROSSING', f'Found {len(rows)} data rows', level='INFO')
                 
                 for row in rows:
-                    cells = row.find_all('td')
-                    if len(cells) < 6:
-                        continue
-                    
                     try:
-                        # Extract date information
-                        date_text = cells[0].get_text(strip=True)
-                        day_text = cells[1].get_text(strip=True)
+                        # Get the full text content of the row
+                        row_text = row.get_text(strip=True)
+                        self.logger.log('CROSSING', f'Processing row: {row_text[:100]}', level='DEBUG')
                         
-                        # Parse date (assuming format like "1" for day of month)
-                        if not date_text.isdigit():
+                        # Parse format: "Wed1st06:35 until 13:10..."
+                        # Extract day number using regex
+                        import re
+                        day_match = re.search(r'(\d{1,2})(st|nd|rd|th)', row_text)
+                        if not day_match:
+                            self.logger.log('CROSSING', f'No day found in: {row_text[:50]}', level='DEBUG')
                             continue
                         
-                        day_of_month = int(date_text)
+                        day_of_month = int(day_match.group(1))
                         crossing_date = datetime(year, month, day_of_month).date()
                         
-                        # Log each date found for debugging
-                        self.logger.log('CROSSING', f'Found date: {crossing_date}, range: {start_date} to {end_date}', level='INFO')
-                        
-                        # Temporarily disable all date filtering to test database save
-                        # Since the scraper only fetches one month at a time anyway,
-                        # we should accept all dates from the scraped page
-                        
-                        # Extract safe times
-                        safe_time_1 = cells[2].get_text(strip=True)
-                        safe_time_2 = cells[4].get_text(strip=True)
-                        
-                        # Extract unsafe times
-                        unsafe_time_1 = cells[3].get_text(strip=True)
-                        unsafe_time_2 = cells[5].get_text(strip=True)
+                        self.logger.log('CROSSING', f'Found date: {crossing_date}', level='INFO')
                         
                         # Parse time ranges using regex
-                        time_pattern = r'(\d{1,2}:\d{2})\s+until\s+(\d{1,2}:\d{2})'
+                        # Pattern: "time until time"
+                        time_ranges = re.findall(r'(\d{2}:\d{2})\s+until\s+(\d{2}:\d{2})', row_text)
                         
-                        safe_1_match = re.search(time_pattern, safe_time_1)
-                        safe_2_match = re.search(time_pattern, safe_time_2)
-                        unsafe_1_match = re.search(time_pattern, unsafe_time_1)
-                        unsafe_2_match = re.search(time_pattern, unsafe_time_2)
+                        if len(time_ranges) < 2:
+                            self.logger.log('CROSSING', f'Insufficient time ranges in: {row_text[:50]}', level='DEBUG')
+                            continue
+                        
+                        self.logger.log('CROSSING', f'Found {len(time_ranges)} time ranges: {time_ranges}', level='INFO')
                         
                         # Check if record already exists
                         existing = CrossingTimes.query.filter_by(date=crossing_date.strftime('%Y-%m-%d')).first()
