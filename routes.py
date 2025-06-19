@@ -43,7 +43,7 @@ def login():
             flash('Username and password are required', 'error')
             return render_template('login.html')
         
-        user = Users.query.filter_by(username=username, is_active=True).first()
+        user = Users.query.filter_by(username=username).first()
         if user and check_auth(username, password):
             session['admin_user'] = username
             session['logged_in'] = True
