@@ -350,6 +350,7 @@ class CrossingService:
             if from_date and to_date:
                 start_date = datetime.strptime(from_date, '%Y-%m-%d').date()
                 end_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+                self.logger.log('CROSSING', f'Date range: {start_date} to {end_date}', level='INFO')
             else:
                 # Default to current month
                 today = datetime.utcnow().date()
@@ -420,8 +421,12 @@ class CrossingService:
                         day_of_month = int(date_text)
                         crossing_date = datetime(year, month, day_of_month).date()
                         
+                        # Log each date found for debugging
+                        self.logger.log('CROSSING', f'Found date: {crossing_date}, range: {start_date} to {end_date}', level='DEBUG')
+                        
                         # Skip if outside our date range
                         if crossing_date < start_date or crossing_date > end_date:
+                            self.logger.log('CROSSING', f'Skipping {crossing_date} - outside range', level='DEBUG')
                             continue
                         
                         # Extract safe times
