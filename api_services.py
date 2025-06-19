@@ -337,48 +337,155 @@ class CrossingService:
         self.logger = SystemLogger()
         self.last_run = None
     
-    def update_crossing_data(self, dry_run=False):
+    def update_crossing_data(self, dry_run=False, from_date=None, to_date=None):
         """Update crossing times from Northumberland County Council website"""
         try:
-            # Northumberland County Council Holy Island crossing times
-            url = "https://www.northumberland.gov.uk/Roads/Roads-Pavements-Parking/Highways-maintenance/Holy-Island.aspx"
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-            
-            response = requests.get(url, headers=headers, timeout=30)
-            response.raise_for_status()
-            
-            # Parse HTML for crossing times (simplified parsing)
-            # In a real implementation, you'd use BeautifulSoup to parse the HTML
-            # and extract the crossing times table
+            from bs4 import BeautifulSoup
+            import re
+            from datetime import datetime, timedelta
             
             records_processed = 0
             
-            if not dry_run:
-                # For now, we'll create a placeholder record
-                # In real implementation, parse the HTML and extract actual data
-                today = datetime.utcnow().date()
-                
-                existing = CrossingTimes.query.filter_by(
-                    date=today,
-                    source_url=url
-                ).first()
-                
-                if not existing:
-                    crossing_record = CrossingTimes(
-                        date=today,
-                        source_url=url,
-                        weather_conditions='Data scraped from website'
-                    )
-                    
-                    db.session.add(crossing_record)
-                    records_processed = 1
-                    db.session.commit()
+            # Determine date range to scrape
+            if from_date and to_date:
+                start_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(to_date, '%Y-%m-%d').date()
             else:
-                # Dry run
-                records_processed = 1
+                # Default to current month
+                today = datetime.utcnow().date()
+                start_date = today.replace(day=1)
+                end_date = today
+            
+            # Get unique months to scrape
+            months_to_scrape = set()
+            current_date = start_date
+            while current_date <= end_date:
+                months_to_scrape.add((current_date.month, current_date.year))
+                # Move to next month
+                if current_date.month == 12:
+                    current_date = current_date.replace(year=current_date.year + 1, month=1)
+                else:
+                    current_date = current_date.replace(month=current_date.month + 1)
+            
+            for month, year in months_to_scrape:
+                # Format: MMYY (e.g., 0625 for June 2025)
+                date_param = f"{month:02d}{str(year)[-2:]}"
+                
+                # Use proxy to bypass DNS restrictions
+                actual_url = f"https://holyislandcrossingtimes.northumberland.gov.uk/Default.aspx?dt={date_param}"
+                proxy_url = f"https://api.codetabs.com/v1/proxy?quest={actual_url}"
+                
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                
+                if dry_run:
+                    self.logger.log('CROSSING', f'[DRY RUN] Would scrape: {actual_url}', level='INFO')
+                    continue
+                
+                response = requests.get(proxy_url, headers=headers, timeout=30)
+                response.raise_for_status()
+                
+                # Parse HTML content
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Verify this is the correct page
+                if "Safe Crossing Times" not in response.text:
+                    self.logger.log('CROSSING', f'Invalid page content for {actual_url}', level='WARNING')
+                    continue
+                
+                # Extract month and year from page
+                month_match = re.search(r'Safe Crossing Times for\s*<strong>(\w+)\s+(\d{4})</strong>', response.text)
+                if not month_match:
+                    self.logger.log('CROSSING', f'Could not extract month/year from {actual_url}', level='WARNING')
+                    continue
+                
+                # Find all table rows
+                rows = soup.find_all('tr', class_='row')
+                
+                for row in rows:
+                    cells = row.find_all('td')
+                    if len(cells) < 6:
+                        continue
+                    
+                    try:
+                        # Extract date information
+                        date_text = cells[0].get_text(strip=True)
+                        day_text = cells[1].get_text(strip=True)
+                        
+                        # Parse date (assuming format like "1" for day of month)
+                        if not date_text.isdigit():
+                            continue
+                        
+                        day_of_month = int(date_text)
+                        crossing_date = datetime(year, month, day_of_month).date()
+                        
+                        # Skip if outside our date range
+                        if crossing_date < start_date or crossing_date > end_date:
+                            continue
+                        
+                        # Extract safe times
+                        safe_time_1 = cells[2].get_text(strip=True)
+                        safe_time_2 = cells[4].get_text(strip=True)
+                        
+                        # Extract unsafe times
+                        unsafe_time_1 = cells[3].get_text(strip=True)
+                        unsafe_time_2 = cells[5].get_text(strip=True)
+                        
+                        # Parse time ranges using regex
+                        time_pattern = r'(\d{1,2}:\d{2})\s+until\s+(\d{1,2}:\d{2})'
+                        
+                        safe_1_match = re.search(time_pattern, safe_time_1)
+                        safe_2_match = re.search(time_pattern, safe_time_2)
+                        unsafe_1_match = re.search(time_pattern, unsafe_time_1)
+                        unsafe_2_match = re.search(time_pattern, unsafe_time_2)
+                        
+                        # Check if record already exists
+                        existing = CrossingTimes.query.filter_by(date=crossing_date.strftime('%Y-%m-%d')).first()
+                        
+                        if existing:
+                            # Update existing record
+                            crossing_record = existing
+                        else:
+                            # Create new record
+                            crossing_record = CrossingTimes()
+                            crossing_record.date = crossing_date.strftime('%Y-%m-%d')
+                            crossing_record.status = 'active'
+                            crossing_record.notes = 'Official data from Northumberland County Council'
+                        
+                        # Update times
+                        if safe_1_match:
+                            crossing_record.safe_from_1 = safe_1_match.group(1)
+                            crossing_record.safe_to_1 = safe_1_match.group(2)
+                        
+                        if safe_2_match:
+                            crossing_record.safe_from_2 = safe_2_match.group(1)
+                            crossing_record.safe_to_2 = safe_2_match.group(2)
+                        
+                        if unsafe_1_match:
+                            crossing_record.unsafe_from_1 = unsafe_1_match.group(1)
+                            crossing_record.unsafe_to_1 = unsafe_1_match.group(2)
+                        
+                        if unsafe_2_match:
+                            crossing_record.unsafe_from_2 = unsafe_2_match.group(1)
+                            crossing_record.unsafe_to_2 = unsafe_2_match.group(2)
+                        
+                        # Add to session if new
+                        if not existing:
+                            db.session.add(crossing_record)
+                        
+                        records_processed += 1
+                        
+                    except Exception as e:
+                        self.logger.log('CROSSING', f'Error processing row: {str(e)}', level='WARNING')
+                        continue
+                
+                # Commit after each month
+                db.session.commit()
+                self.logger.log('CROSSING', f'Processed {month}/{year} - found crossing times')
+            
+            if dry_run:
+                records_processed = len(months_to_scrape)  # Estimate for dry run
             
             self.last_run = datetime.utcnow()
             result = f"Crossing times update completed. Records processed: {records_processed}"

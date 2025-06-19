@@ -336,7 +336,8 @@ def automation_status():
 @app.route('/api/scripts/<script_name>/run', methods=['POST'])
 @login_required
 def run_script(script_name):
-    dry_run = request.json.get('dry_run', False) if request.json else False
+    data = request.json if request.json else {}
+    dry_run = data.get('dry_run', False)
     
     try:
         if script_name == 'weather':
@@ -344,7 +345,10 @@ def run_script(script_name):
         elif script_name == 'tides':
             result = tide_service.update_tide_data(dry_run=dry_run)
         elif script_name == 'crossing':
-            result = crossing_service.update_crossing_data(dry_run=dry_run)
+            # Get date parameters from request
+            from_date = data.get('from_date')
+            to_date = data.get('to_date')
+            result = crossing_service.update_crossing_data(dry_run=dry_run, from_date=from_date, to_date=to_date)
         else:
             return jsonify({'status': 'error', 'message': 'Invalid script name'}), 400
         

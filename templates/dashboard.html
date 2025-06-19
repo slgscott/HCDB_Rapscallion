@@ -631,12 +631,28 @@ function runScript(scriptName, dryRun) {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running...';
     
+    // Prepare request data
+    let requestData = { dry_run: dryRun };
+    
+    // For crossing script, include date parameters if available
+    if (scriptName === 'crossing') {
+        const fromDate = document.getElementById('crossing_from_date');
+        const toDate = document.getElementById('crossing_to_date');
+        
+        if (fromDate && fromDate.value) {
+            requestData.from_date = fromDate.value;
+        }
+        if (toDate && toDate.value) {
+            requestData.to_date = toDate.value;
+        }
+    }
+    
     fetch(`/api/scripts/${scriptName}/run`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ dry_run: dryRun })
+        body: JSON.stringify(requestData)
     })
     .then(response => response.json())
     .then(data => {
