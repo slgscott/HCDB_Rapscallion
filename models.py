@@ -74,16 +74,12 @@ class Users(db.Model):
     __tablename__ = 'users'
     
     id = Column(Integer, primary_key=True)
-    username = Column(String(64), unique=True, nullable=False)
-    password_hash = Column(String(256), nullable=False)
-    email = Column(String(120))
-    is_active = Column(Boolean, default=True)
-    created_at = Column(TIMESTAMP, default=func.now())
+    username = Column(Text, nullable=False)
+    password = Column(Text, nullable=False)
     
-    def __init__(self, username, password_hash, email=None):
+    def __init__(self, username, password):
         self.username = username
-        self.password_hash = password_hash
-        self.email = email
+        self.password = password
 
 class SystemSettings(db.Model):
     __tablename__ = 'system_settings'
