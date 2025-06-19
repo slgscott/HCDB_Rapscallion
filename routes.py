@@ -83,6 +83,11 @@ def dashboard():
     recent_tides = TideData.query.order_by(desc(TideData.date)).limit(15).all()
     recent_weather = WeatherData.query.order_by(desc(WeatherData.date)).limit(15).all()
     
+    # Get last updated timestamps for each table
+    last_crossing_update = db.session.query(db.func.max(CrossingTimes.updated_at)).scalar()
+    last_tide_update = db.session.query(db.func.max(TideData.updated_at)).scalar()
+    last_weather_update = db.session.query(db.func.max(WeatherData.updated_at)).scalar()
+    
     return render_template('dashboard.html',
                          automation_status=automation_status,
                          script_status=script_status,
@@ -92,7 +97,10 @@ def dashboard():
                          weather_count=weather_count,
                          recent_crossings=recent_crossings,
                          recent_tides=recent_tides,
-                         recent_weather=recent_weather)
+                         recent_weather=recent_weather,
+                         last_crossing_update=last_crossing_update,
+                         last_tide_update=last_tide_update,
+                         last_weather_update=last_weather_update)
 
 @app.route('/logs')
 @login_required

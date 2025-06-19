@@ -310,6 +310,9 @@
                         <i class="fas fa-road fa-2x mb-2"></i>
                         <h3>{{ crossing_count }}</h3>
                         <p class="mb-0">Crossing Times</p>
+                        {% if last_crossing_update %}
+                        <small class="text-white-50">Updated: {{ format_datetime_uk(last_crossing_update) }}</small>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="text-center mt-2">
@@ -325,6 +328,9 @@
                         <i class="fas fa-water fa-2x mb-2"></i>
                         <h3>{{ tide_count }}</h3>
                         <p class="mb-0">Tide Records</p>
+                        {% if last_tide_update %}
+                        <small class="text-white-50">Updated: {{ format_datetime_uk(last_tide_update) }}</small>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="text-center mt-2">
