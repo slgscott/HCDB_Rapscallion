@@ -83,16 +83,10 @@ def dashboard():
     recent_tides = TideData.query.order_by(desc(TideData.date)).limit(15).all()
     recent_weather = WeatherData.query.order_by(desc(WeatherData.date)).limit(15).all()
     
-    # Get last updated timestamps for each table and convert to UK timezone
-    last_crossing_update_utc = db.session.query(func.max(CrossingTimes.updated_at)).scalar()
-    last_tide_update_utc = db.session.query(func.max(TideData.updated_at)).scalar()
-    last_weather_update_utc = db.session.query(func.max(WeatherData.updated_at)).scalar()
-    
-    # Convert to UK timezone
-    from utils import format_datetime_uk
-    last_crossing_update = format_datetime_uk(last_crossing_update_utc) if last_crossing_update_utc else None
-    last_tide_update = format_datetime_uk(last_tide_update_utc) if last_tide_update_utc else None
-    last_weather_update = format_datetime_uk(last_weather_update_utc) if last_weather_update_utc else None
+    # Get last updated timestamps for each table
+    last_crossing_update = db.session.query(func.max(CrossingTimes.updated_at)).scalar()
+    last_tide_update = db.session.query(func.max(TideData.updated_at)).scalar()
+    last_weather_update = db.session.query(func.max(WeatherData.updated_at)).scalar()
     
     return render_template('dashboard.html',
                          automation_status=automation_status,

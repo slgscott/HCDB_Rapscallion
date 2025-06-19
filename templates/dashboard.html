@@ -310,7 +310,7 @@
                         <i class="fas fa-road fa-2x mb-2"></i>
                         <h3>{{ crossing_count }}</h3>
                         <p class="mb-0">Crossing Times</p>
-                        <small class="text-white-50">Updated: {{ last_crossing_update or 'Never' }}</small>
+                        <small class="text-white-50">Updated: {% if last_crossing_update %}{{ last_crossing_update.strftime('%d/%m/%Y %H:%M') }}{% else %}Never{% endif %}</small>
                     </div>
                 </div>
                 <div class="text-center mt-2">
@@ -326,7 +326,7 @@
                         <i class="fas fa-water fa-2x mb-2"></i>
                         <h3>{{ tide_count }}</h3>
                         <p class="mb-0">Tide Records</p>
-                        <small class="text-white-50">Updated: {{ last_tide_update or 'Never' }}</small>
+                        <small class="text-white-50">Updated: {% if last_tide_update %}{{ last_tide_update.strftime('%d/%m/%Y %H:%M') }}{% else %}Never{% endif %}</small>
                     </div>
                 </div>
                 <div class="text-center mt-2">
@@ -342,7 +342,7 @@
                         <i class="fas fa-cloud fa-2x mb-2"></i>
                         <h3>{{ weather_count }}</h3>
                         <p class="mb-0">Weather Records</p>
-                        <small class="text-white-50">Updated: {{ last_weather_update or 'Never' }}</small>
+                        <small class="text-white-50">Updated: {% if last_weather_update %}{{ last_weather_update.strftime('%d/%m/%Y %H:%M') }}{% else %}Never{% endif %}</small>
                     </div>
                 </div>
                 <div class="text-center mt-2">
