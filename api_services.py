@@ -36,7 +36,14 @@ class WeatherService:
             records_processed = 0
             
             if not dry_run:
-                # Process hourly data
+                # Process daily data for weather overview
+                daily = data.get('daily', {})
+                daily_times = daily.get('time', [])
+                daily_temp_max = daily.get('temperature_2m_max', [])
+                daily_temp_min = daily.get('temperature_2m_min', [])
+                daily_weather_codes = daily.get('weather_code', [])
+                
+                # Process hourly data for detailed records
                 hourly = data.get('hourly', {})
                 times = hourly.get('time', [])
                 temperatures = hourly.get('temperature_2m', [])
@@ -45,29 +52,42 @@ class WeatherService:
                 wind_directions = hourly.get('wind_direction_10m', [])
                 weather_codes = hourly.get('weather_code', [])
                 
-                for i, time_str in enumerate(times):
-                    dt = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-                    
-                    # Check if record already exists
+                # Create daily summary records
+                for i, date_str in enumerate(daily_times):
+                    # Check if record already exists for this date
                     existing = WeatherData.query.filter_by(
-                        datetime=dt,
-                        api_source='open-meteo'
+                        date=date_str,
+                        source='open-meteo'
                     ).first()
                     
                     if not existing:
-                        weather_record = WeatherData(
-                            datetime=dt,
-                            temperature=temperatures[i] if i < len(temperatures) else None,
-                            humidity=int(humidity[i]) if i < len(humidity) and humidity[i] else None,
-                            wind_speed=wind_speeds[i] if i < len(wind_speeds) else None,
-                            wind_direction=self._degrees_to_direction(wind_directions[i]) if i < len(wind_directions) else None,
-                            conditions=self._weather_code_to_description(weather_codes[i]) if i < len(weather_codes) else None,
-                            forecast_day=0,  # Current/hourly data
-                            api_source='open-meteo'
-                        )
+                        weather_record = WeatherData()
+                        weather_record.date = date_str
+                        weather_record.temperature_max = daily_temp_max[i] if i < len(daily_temp_max) else None
+                        weather_record.temperature_min = daily_temp_min[i] if i < len(daily_temp_min) else None
+                        weather_record.condition = self._weather_code_to_description(daily_weather_codes[i]) if i < len(daily_weather_codes) else None
+                        weather_record.source = 'open-meteo'
                         
                         db.session.add(weather_record)
                         records_processed += 1
+                
+                # Update existing records with hourly data averages
+                for i, time_str in enumerate(times):
+                    dt = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
+                    date_str = dt.strftime('%Y-%m-%d')
+                    
+                    # Find existing daily record to update with hourly averages
+                    daily_record = WeatherData.query.filter_by(
+                        date=date_str,
+                        source='open-meteo'
+                    ).first()
+                    
+                    if daily_record and not daily_record.temperature:
+                        # Update with current hour's data as sample
+                        daily_record.temperature = int(temperatures[i]) if i < len(temperatures) and temperatures[i] else None
+                        daily_record.humidity = int(humidity[i]) if i < len(humidity) and humidity[i] else None
+                        daily_record.wind_speed = int(wind_speeds[i]) if i < len(wind_speeds) and wind_speeds[i] else None
+                        daily_record.wind_direction = self._degrees_to_direction(wind_directions[i]) if i < len(wind_directions) and wind_directions[i] else None
                 
                 db.session.commit()
             else:
