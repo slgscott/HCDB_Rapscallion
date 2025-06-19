@@ -84,7 +84,7 @@ def dashboard():
     recent_weather = WeatherData.query.order_by(desc(WeatherData.date)).limit(15).all()
     
     # Get last updated timestamps for each table
-    last_crossing_update = db.session.query(func.max(CrossingTimes.updated_at)).scalar()
+    last_crossing_update = db.session.query(func.max(CrossingTimes.updatedAt)).scalar()
     last_tide_update = db.session.query(func.max(TideData.updated_at)).scalar()
     last_weather_update = db.session.query(func.max(WeatherData.updated_at)).scalar()
     

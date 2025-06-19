@@ -468,20 +468,20 @@ class CrossingService:
                         
                         # Update times
                         if safe_1_match:
-                            crossing_record.safe_from_1 = safe_1_match.group(1)
-                            crossing_record.safe_to_1 = safe_1_match.group(2)
+                            crossing_record.safeFrom1 = safe_1_match.group(1)
+                            crossing_record.safeTo1 = safe_1_match.group(2)
                         
                         if safe_2_match:
-                            crossing_record.safe_from_2 = safe_2_match.group(1)
-                            crossing_record.safe_to_2 = safe_2_match.group(2)
+                            crossing_record.safeFrom2 = safe_2_match.group(1)
+                            crossing_record.safeTo2 = safe_2_match.group(2)
                         
                         if unsafe_1_match:
-                            crossing_record.unsafe_from_1 = unsafe_1_match.group(1)
-                            crossing_record.unsafe_to_1 = unsafe_1_match.group(2)
+                            crossing_record.unsafeFrom1 = unsafe_1_match.group(1)
+                            crossing_record.unsafeTo1 = unsafe_1_match.group(2)
                         
                         if unsafe_2_match:
-                            crossing_record.unsafe_from_2 = unsafe_2_match.group(1)
-                            crossing_record.unsafe_to_2 = unsafe_2_match.group(2)
+                            crossing_record.unsafeFrom2 = unsafe_2_match.group(1)
+                            crossing_record.unsafeTo2 = unsafe_2_match.group(2)
                         
                         # Add to session if new
                         if not existing:
