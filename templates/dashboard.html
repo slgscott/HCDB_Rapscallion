@@ -520,9 +520,9 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Temperature</th>
-                                    <th>Conditions</th>
+                                    <th>Precipitation</th>
                                     <th>Wind</th>
-                                    <th>Humidity</th>
+                                    <th>UV & Cloud</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -532,8 +532,8 @@
                                     <td>
                                         {% if weather.temperature_max and weather.temperature_min %}
                                             <div>
-                                                <span class="text-danger">{{ weather.temperature_max }}°C</span> / 
-                                                <span class="text-primary">{{ weather.temperature_min }}°C</span>
+                                                <span class="text-danger">Max: {{ weather.temperature_max }}°C</span><br>
+                                                <span class="text-primary">Min: {{ weather.temperature_min }}°C</span>
                                             </div>
                                         {% elif weather.temperature %}
                                             <span class="badge bg-info">{{ weather.temperature }}°C</span>
@@ -542,25 +542,32 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if weather.condition %}
-                                            <span class="badge bg-secondary">{{ weather.condition }}</span>
-                                        {% endif %}
-                                        {% if weather.description %}
-                                            <div><small class="text-muted">{{ weather.description }}</small></div>
+                                        {% if weather.precipitation_sum %}
+                                            <span class="badge bg-info">{{ weather.precipitation_sum }}mm</span>
+                                        {% else %}
+                                            <span class="text-muted">0mm</span>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if weather.wind_speed %}
+                                        {% if weather.wind_speed_max %}
+                                            <div><strong>{{ weather.wind_speed_max }} km/h</strong></div>
+                                        {% elif weather.wind_speed %}
                                             <div><strong>{{ weather.wind_speed }} km/h</strong></div>
-                                            {% if weather.wind_direction %}<small class="text-muted">{{ weather.wind_direction }}</small>{% endif %}
-                                        {% else %}
-                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                        {% if weather.wind_direction %}
+                                            <small class="text-muted">{{ weather.wind_direction }}</small>
+                                        {% elif weather.wind_direction_dominant %}
+                                            <small class="text-muted">{{ weather.wind_direction_dominant }}°</small>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if weather.humidity %}
-                                            <span class="badge bg-info">{{ weather.humidity }}%</span>
-                                        {% else %}
+                                        {% if weather.uv_index_max %}
+                                            <div><span class="badge bg-warning">UV: {{ weather.uv_index_max }}</span></div>
+                                        {% endif %}
+                                        {% if weather.cloudcover %}
+                                            <div><span class="badge bg-secondary">{{ weather.cloudcover }}% clouds</span></div>
+                                        {% endif %}
+                                        {% if not weather.uv_index_max and not weather.cloudcover %}
                                             <span class="text-muted">N/A</span>
                                         {% endif %}
                                     </td>
@@ -568,11 +575,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="{{ url_for('data_table', table_name='weather_data') }}" class="btn btn-success">
-                            <i class="fas fa-external-link-alt me-1"></i>View All Weather Data
-                        </a>
                     </div>
                 </div>
             </div>
