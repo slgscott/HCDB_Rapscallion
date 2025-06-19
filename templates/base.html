@@ -35,7 +35,6 @@
             left: 0;
             right: 0;
             z-index: 1050;
-            background-color: #212529 !important;
             border: 2px solid var(--bs-border-color);
             border-radius: 0.5rem;
             box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.4);
@@ -43,13 +42,51 @@
             margin-top: 4px;
         }
         
-        /* Force dark theme colors for calendar */
-        [data-bs-theme="dark"] .custom-calendar {
-            background-color: #212529 !important;
+        /* Create solid background overlay */
+        .custom-calendar::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #212529;
+            border-radius: 0.5rem;
+            z-index: -1;
         }
         
-        [data-bs-theme="light"] .custom-calendar {
-            background-color: #ffffff !important;
+        /* Light theme background */
+        [data-bs-theme="light"] .custom-calendar::before {
+            background: #ffffff;
+        }
+        
+        /* Ensure calendar content is above background */
+        .custom-calendar > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Calendar header navigation */
+        .calendar-header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+        
+        .calendar-header-nav .month-year {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-header-nav .btn {
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .calendar-grid {
