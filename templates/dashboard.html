@@ -52,10 +52,6 @@
                                 {{ script_status.weather.status|title }}
                             </span>
                         </p>
-                        <p class="card-text">
-                            <strong>Last Run:</strong><br>
-                            <small>{{ script_status.weather.last_run or 'Never' }}</small>
-                        </p>
                         <div class="d-grid gap-2">
                             <button class="btn btn-outline-secondary btn-lg" onclick="runScript('weather', true)">
                                 <i class="fas fa-vial me-1"></i>Test Run
@@ -79,10 +75,6 @@
                             <span class="badge bg-{{ 'success' if script_status.tide.status == 'active' else 'secondary' }}">
                                 {{ script_status.tide.status|title }}
                             </span>
-                        </p>
-                        <p class="card-text">
-                            <strong>Last Run:</strong><br>
-                            <small>{{ script_status.tide.last_run or 'Never' }}</small>
                         </p>
                         <div class="d-grid gap-2">
                             <button class="btn btn-outline-secondary btn-lg" onclick="runScript('tides', true)">
