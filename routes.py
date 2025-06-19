@@ -132,8 +132,7 @@ def logs():
                              'level': level_filter,
                              'component': component_filter,
                              'date': date_filter
-                         },
-                         format_datetime_uk=format_datetime_uk)
+                         })
 
 # Data management routes
 @app.route('/data/<table_name>')
