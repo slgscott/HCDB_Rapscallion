@@ -88,6 +88,11 @@ def dashboard():
     last_tide_update = db.session.query(func.max(TideData.updated_at)).scalar()
     last_weather_update = db.session.query(func.max(WeatherData.updated_at)).scalar()
     
+    # Debug output
+    print(f"DEBUG - Crossing update: {last_crossing_update}")
+    print(f"DEBUG - Tide update: {last_tide_update}")
+    print(f"DEBUG - Weather update: {last_weather_update}")
+    
     return render_template('dashboard.html',
                          automation_status=automation_status,
                          script_status=script_status,
