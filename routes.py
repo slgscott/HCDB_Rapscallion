@@ -406,9 +406,16 @@ def export_data(table_name):
     system_logger.log('EXPORT', f'Data export: {table_name} as {export_format}')
     return response
 
-# Initialize admin user if none exists
-@app.before_first_request
+# Initialize admin user if none exists - called from first request
+@app.before_request
 def initialize_admin():
-    if not AdminUser.query.first():
-        create_admin_user('admin', 'admin123')  # Default credentials
-        system_logger.log('INIT', 'Default admin user created (username: admin, password: admin123)')
+    # Only run once
+    if not hasattr(initialize_admin, 'done'):
+        try:
+            if not AdminUser.query.first():
+                create_admin_user('admin', 'admin123')  # Default credentials
+                system_logger.log('INIT', 'Default admin user created (username: admin, password: admin123)')
+        except Exception as e:
+            # Tables might not exist yet
+            pass
+        initialize_admin.done = True

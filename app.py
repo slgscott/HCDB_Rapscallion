@@ -35,5 +35,6 @@ db.init_app(app)
 with app.app_context():
     # Import models to ensure tables are created
     import models  # noqa: F401
-    # Note: We don't call db.create_all() since we're connecting to existing database
-    logging.info("Database connection established")
+    # Create all tables
+    db.create_all()
+    logging.info("Database connection established and tables created")
