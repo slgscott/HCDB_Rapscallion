@@ -369,6 +369,7 @@
                                     <th>Safe Crossing 2</th>
                                     <th>Status</th>
                                     <th>Notes</th>
+                                    <th>Test Column</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -401,6 +402,7 @@
                                             <span class="text-muted">None</span>
                                         {% endif %}
                                     </td>
+                                    <td>Updated: {{ crossing.updated_at.strftime('%d/%m/%Y %H:%M') if crossing.updated_at else 'Never' }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
