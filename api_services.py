@@ -235,6 +235,7 @@ class TideService:
                 tide_events_by_date = {}
                 
                 for event in data:
+                    # Parse DateTime field (format: "2024-06-19T14:30:00Z")
                     event_time = datetime.fromisoformat(event['DateTime'].replace('Z', '+00:00'))
                     # Convert to UK timezone
                     uk_time = event_time.astimezone(pytz.timezone('Europe/London'))
@@ -245,7 +246,7 @@ class TideService:
                     
                     tide_info = {
                         'time': uk_time.strftime('%H:%M'),
-                        'height': event['Height']
+                        'height': float(event['Height'])
                     }
                     
                     if event['EventType'] == 'HighWater':
@@ -271,6 +272,17 @@ class TideService:
                     high_tides = sorted(tides['high_tides'], key=lambda x: x['time'])
                     low_tides = sorted(tides['low_tides'], key=lambda x: x['time'])
                     
+                    # Clear existing values first
+                    tide_record.high_tide_1_time = None
+                    tide_record.high_tide_1_height = None
+                    tide_record.high_tide_2_time = None
+                    tide_record.high_tide_2_height = None
+                    tide_record.low_tide_1_time = None
+                    tide_record.low_tide_1_height = None
+                    tide_record.low_tide_2_time = None
+                    tide_record.low_tide_2_height = None
+                    
+                    # Assign high tides
                     if len(high_tides) >= 1:
                         tide_record.high_tide_1_time = high_tides[0]['time']
                         tide_record.high_tide_1_height = high_tides[0]['height']
@@ -278,6 +290,7 @@ class TideService:
                         tide_record.high_tide_2_time = high_tides[1]['time']
                         tide_record.high_tide_2_height = high_tides[1]['height']
                     
+                    # Assign low tides
                     if len(low_tides) >= 1:
                         tide_record.low_tide_1_time = low_tides[0]['time']
                         tide_record.low_tide_1_height = low_tides[0]['height']
@@ -286,14 +299,19 @@ class TideService:
                         tide_record.low_tide_2_height = low_tides[1]['height']
                 
                 db.session.commit()
+                
+                # Add detailed logging like weather script
+                new_records = sum(1 for date_str in tide_events_by_date.keys() 
+                                if not TideData.query.filter_by(date=date_str).first())
+                existing_records = len(tide_events_by_date) - new_records
+                
+                dates_list = sorted(tide_events_by_date.keys())[:3]  # Show first 3 dates
+                dates_preview = ', '.join(dates_list) + ('...' if len(tide_events_by_date) > 3 else '')
+                
+                self.logger.log('TIDE', f'Processed {len(tide_events_by_date)} dates. Created {new_records} new records, updated {existing_records} existing records. Dates: {dates_preview}')
             else:
-                # Dry run - count potential records by unique dates
-                unique_dates = set()
-                for event in data:
-                    event_time = datetime.fromisoformat(event['DateTime'].replace('Z', '+00:00'))
-                    uk_time = event_time.astimezone(pytz.timezone('Europe/London'))
-                    unique_dates.add(uk_time.strftime('%Y-%m-%d'))
-                records_processed = len(unique_dates)
+                # This shouldn't run since we now do the API call in dry_run mode above
+                records_processed = 0
             
             self.last_run = datetime.utcnow()
             result = f"Tide update completed. Records processed: {records_processed}"
