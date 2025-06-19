@@ -30,14 +30,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Refresh logs when Logs tab is clicked
+    // Refresh logs content when Logs tab is clicked
     const logsTab = document.getElementById('logs-tab');
     if (logsTab) {
         logsTab.addEventListener('click', function() {
-            // Small delay to allow tab switching animation
+            // Allow the tab to switch first, then refresh logs content
             setTimeout(function() {
-                window.location.reload();
-            }, 200);
+                refreshLogsContent();
+            }, 100);
         });
     }
 
@@ -270,5 +270,43 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// Function to refresh logs content without full page reload
+function refreshLogsContent() {
+    const logsContainer = document.getElementById('logs');
+    if (!logsContainer) return;
+    
+    // Show loading indicator
+    const logsTableContainer = logsContainer.querySelector('.table-responsive');
+    if (logsTableContainer) {
+        logsTableContainer.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin me-2"></i>Refreshing logs...</div>';
+    }
+    
+    // Fetch fresh logs data
+    fetch('/logs', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        // Create a temporary div to parse the response
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        
+        // Extract just the logs table content
+        const newLogsContent = tempDiv.querySelector('#logs .table-responsive');
+        if (newLogsContent && logsTableContainer) {
+            logsTableContainer.innerHTML = newLogsContent.innerHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error refreshing logs:', error);
+        if (logsTableContainer) {
+            logsTableContainer.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Unable to refresh logs. Please try again.</div>';
+        }
+    });
+}
 
 console.log('HCDB_Rapscallion - Client application loaded');
