@@ -422,12 +422,12 @@ class CrossingService:
                         crossing_date = datetime(year, month, day_of_month).date()
                         
                         # Log each date found for debugging
-                        self.logger.log('CROSSING', f'Found date: {crossing_date}, range: {start_date} to {end_date}', level='DEBUG')
+                        self.logger.log('CROSSING', f'Found date: {crossing_date}, range: {start_date} to {end_date}', level='INFO')
                         
-                        # Skip if outside our date range
-                        if crossing_date < start_date or crossing_date > end_date:
-                            self.logger.log('CROSSING', f'Skipping {crossing_date} - outside range', level='DEBUG')
-                            continue
+                        # Temporarily disable date filtering to test
+                        # if crossing_date < start_date or crossing_date > end_date:
+                        #     self.logger.log('CROSSING', f'Skipping {crossing_date} - outside range', level='DEBUG')
+                        #     continue
                         
                         # Extract safe times
                         safe_time_1 = cells[2].get_text(strip=True)
