@@ -30,6 +30,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Refresh logs when Logs tab is clicked
+    const logsTab = document.getElementById('logs-tab');
+    if (logsTab) {
+        logsTab.addEventListener('click', function() {
+            // Small delay to allow tab switching animation
+            setTimeout(function() {
+                window.location.reload();
+            }, 200);
+        });
+    }
+
     // Form validation enhancement
     const forms = document.querySelectorAll('form');
     forms.forEach(function(form) {
