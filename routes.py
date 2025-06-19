@@ -4,7 +4,7 @@ import csv
 from datetime import datetime, timedelta, date, time
 from io import StringIO
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, func
 from app import app, db
 from models import CrossingTimes, TideData, WeatherData, ApiSettings, Users, SystemLog
 from auth import login_required, check_auth, create_admin_user
@@ -84,9 +84,9 @@ def dashboard():
     recent_weather = WeatherData.query.order_by(desc(WeatherData.date)).limit(15).all()
     
     # Get last updated timestamps for each table
-    last_crossing_update = db.session.query(db.func.max(CrossingTimes.updated_at)).scalar()
-    last_tide_update = db.session.query(db.func.max(TideData.updated_at)).scalar()
-    last_weather_update = db.session.query(db.func.max(WeatherData.updated_at)).scalar()
+    last_crossing_update = db.session.query(func.max(CrossingTimes.updated_at)).scalar()
+    last_tide_update = db.session.query(func.max(TideData.updated_at)).scalar()
+    last_weather_update = db.session.query(func.max(WeatherData.updated_at)).scalar()
     
     return render_template('dashboard.html',
                          automation_status=automation_status,
