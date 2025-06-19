@@ -35,7 +35,7 @@
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
-            <i class="fas fa-chart-bar me-1"></i>Overview
+            <i class="fas fa-table me-1"></i>View Data
         </button>
     </li>
 </ul>
@@ -342,12 +342,13 @@
         </div>
     </div>
 
-    <!-- Overview Tab -->
+    <!-- View Data Tab -->
     <div class="tab-pane fade" id="overview" role="tabpanel">
-        <div class="row">
+        <!-- Data Type Selection Cards -->
+        <div class="row mb-4">
             <div class="col-md-4 mb-3">
-                <div class="card bg-primary">
-                    <div class="card-body text-center">
+                <div class="card bg-primary data-selector active" style="cursor: pointer;" onclick="showDataTable('crossing')">
+                    <div class="card-body text-center text-white">
                         <i class="fas fa-road fa-2x mb-2"></i>
                         <h3>{{ crossing_count }}</h3>
                         <p class="mb-0">Crossing Times</p>
@@ -356,8 +357,8 @@
             </div>
             
             <div class="col-md-4 mb-3">
-                <div class="card bg-info">
-                    <div class="card-body text-center">
+                <div class="card bg-info data-selector" style="cursor: pointer;" onclick="showDataTable('tide')">
+                    <div class="card-body text-center text-white">
                         <i class="fas fa-water fa-2x mb-2"></i>
                         <h3>{{ tide_count }}</h3>
                         <p class="mb-0">Tide Records</p>
@@ -366,8 +367,8 @@
             </div>
             
             <div class="col-md-4 mb-3">
-                <div class="card bg-success">
-                    <div class="card-body text-center">
+                <div class="card bg-success data-selector" style="cursor: pointer;" onclick="showDataTable('weather')">
+                    <div class="card-body text-center text-white">
                         <i class="fas fa-cloud fa-2x mb-2"></i>
                         <h3>{{ weather_count }}</h3>
                         <p class="mb-0">Weather Records</p>
@@ -375,30 +376,203 @@
                 </div>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-history me-2"></i>Recent Activity
+
+        <!-- Crossing Times Table -->
+        <div id="crossing-data" class="data-table">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-road me-2"></i>Holy Island Crossing Times</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Safe Crossing 1</th>
+                                    <th>Safe Crossing 2</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for crossing in recent_crossings %}
+                                <tr>
+                                    <td><strong>{{ crossing.date }}</strong></td>
+                                    <td>
+                                        {% if crossing.safe_from_1 and crossing.safe_to_1 %}
+                                            <span class="badge bg-success">{{ crossing.safe_from_1 }} - {{ crossing.safe_to_1 }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Not available</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if crossing.safe_from_2 and crossing.safe_to_2 %}
+                                            <span class="badge bg-success">{{ crossing.safe_from_2 }} - {{ crossing.safe_to_2 }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Not available</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if crossing.status == 'active' else 'secondary' }}">
+                                            {{ crossing.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if crossing.notes %}
+                                            {{ crossing.notes[:50] }}{% if crossing.notes|length > 50 %}...{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="card-body">
-                        {% if recent_logs %}
-                            {% for log in recent_logs %}
-                                <div class="mb-2">
-                                    <span class="badge bg-{{ 'danger' if log.level == 'ERROR' else 'warning' if log.level == 'WARNING' else 'primary' }}">
-                                        {{ log.level }}
-                                    </span>
-                                    <strong>{{ log.component }}</strong>
-                                    <small class="text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-                                    <br>
-                                    <span>{{ log.message }}</span>
-                                </div>
-                                {% if not loop.last %}<hr>{% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted">No recent activity</p>
-                        {% endif %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('data_table', table_name='crossing_times') }}" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>View All Crossing Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tide Data Table -->
+        <div id="tide-data" class="data-table" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-water me-2"></i>Holy Island Tide Data</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>High Tide 1</th>
+                                    <th>Low Tide 1</th>
+                                    <th>High Tide 2</th>
+                                    <th>Low Tide 2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tide in recent_tides %}
+                                <tr>
+                                    <td><strong>{{ tide.date }}</strong></td>
+                                    <td>
+                                        {% if tide.high_tide_1_time %}
+                                            <div><strong>{{ tide.high_tide_1_time }}</strong></div>
+                                            {% if tide.high_tide_1_height %}<small class="text-info">{{ tide.high_tide_1_height }}m</small>{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if tide.low_tide_1_time %}
+                                            <div><strong>{{ tide.low_tide_1_time }}</strong></div>
+                                            {% if tide.low_tide_1_height %}<small class="text-warning">{{ tide.low_tide_1_height }}m</small>{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if tide.high_tide_2_time %}
+                                            <div><strong>{{ tide.high_tide_2_time }}</strong></div>
+                                            {% if tide.high_tide_2_height %}<small class="text-info">{{ tide.high_tide_2_height }}m</small>{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if tide.low_tide_2_time %}
+                                            <div><strong>{{ tide.low_tide_2_time }}</strong></div>
+                                            {% if tide.low_tide_2_height %}<small class="text-warning">{{ tide.low_tide_2_height }}m</small>{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('data_table', table_name='tide_data') }}" class="btn btn-info">
+                            <i class="fas fa-external-link-alt me-1"></i>View All Tide Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Data Table -->
+        <div id="weather-data" class="data-table" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>Holy Island Weather Data</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Temperature</th>
+                                    <th>Conditions</th>
+                                    <th>Wind</th>
+                                    <th>Humidity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for weather in recent_weather %}
+                                <tr>
+                                    <td><strong>{{ weather.date }}</strong></td>
+                                    <td>
+                                        {% if weather.temperature_max and weather.temperature_min %}
+                                            <div>
+                                                <span class="text-danger">{{ weather.temperature_max }}°C</span> / 
+                                                <span class="text-primary">{{ weather.temperature_min }}°C</span>
+                                            </div>
+                                        {% elif weather.temperature %}
+                                            <span class="badge bg-info">{{ weather.temperature }}°C</span>
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if weather.condition %}
+                                            <span class="badge bg-secondary">{{ weather.condition }}</span>
+                                        {% endif %}
+                                        {% if weather.description %}
+                                            <div><small class="text-muted">{{ weather.description }}</small></div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if weather.wind_speed %}
+                                            <div><strong>{{ weather.wind_speed }} km/h</strong></div>
+                                            {% if weather.wind_direction %}<small class="text-muted">{{ weather.wind_direction }}</small>{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if weather.humidity %}
+                                            <span class="badge bg-info">{{ weather.humidity }}%</span>
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('data_table', table_name='weather_data') }}" class="btn btn-success">
+                            <i class="fas fa-external-link-alt me-1"></i>View All Weather Data
+                        </a>
                     </div>
                 </div>
             </div>
@@ -408,7 +582,64 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.data-selector {
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.data-selector:hover {
+    opacity: 1 !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.data-selector.active {
+    opacity: 1 !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.data-table {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
 <script>
+// Data table switching functionality
+function showDataTable(type) {
+    // Hide all data tables
+    document.querySelectorAll('.data-table').forEach(table => {
+        table.style.display = 'none';
+    });
+    
+    // Remove active class from all selectors
+    document.querySelectorAll('.data-selector').forEach(selector => {
+        selector.classList.remove('active');
+        selector.style.opacity = '0.7';
+        selector.style.transform = 'scale(1)';
+    });
+    
+    // Show selected table and activate selector
+    const selectedTable = document.getElementById(type + '-data');
+    const selectedCard = event.target.closest('.data-selector');
+    
+    if (selectedTable) {
+        selectedTable.style.display = 'block';
+    }
+    
+    if (selectedCard) {
+        selectedCard.classList.add('active');
+        selectedCard.style.opacity = '1';
+        selectedCard.style.transform = 'scale(1.02)';
+    }
+}
+
 function runScript(scriptName, dryRun) {
     const btn = event.target;
     const originalText = btn.innerHTML;

@@ -73,13 +73,21 @@ def dashboard():
     tide_count = TideData.query.count()
     weather_count = WeatherData.query.count()
     
+    # Get recent data for View Data tab
+    recent_crossings = CrossingTimes.query.order_by(desc(CrossingTimes.date)).limit(15).all()
+    recent_tides = TideData.query.order_by(desc(TideData.date)).limit(15).all()
+    recent_weather = WeatherData.query.order_by(desc(WeatherData.date)).limit(15).all()
+    
     return render_template('dashboard.html',
                          automation_status=automation_status,
                          script_status=script_status,
                          recent_logs=recent_logs,
                          crossing_count=crossing_count,
                          tide_count=tide_count,
-                         weather_count=weather_count)
+                         weather_count=weather_count,
+                         recent_crossings=recent_crossings,
+                         recent_tides=recent_tides,
+                         recent_weather=recent_weather)
 
 @app.route('/logs')
 @login_required
