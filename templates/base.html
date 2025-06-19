@@ -13,6 +13,43 @@
     
     <!-- Custom mobile CSS -->
     <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
+    
+    <style>
+        /* Clean date picker styling */
+        .calendar-input {
+            position: relative;
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            color: var(--bs-body-color);
+        }
+        
+        .calendar-input:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+        }
+        
+        /* Hide the default date format display */
+        .calendar-input::-webkit-datetime-edit-text {
+            color: transparent;
+        }
+        
+        .calendar-input::-webkit-datetime-edit-month-field,
+        .calendar-input::-webkit-datetime-edit-day-field,
+        .calendar-input::-webkit-datetime-edit-year-field {
+            color: var(--bs-body-color);
+        }
+        
+        /* Style the calendar icon */
+        .calendar-input::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(1);
+            opacity: 0.8;
+        }
+        
+        .calendar-input::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <!-- Mobile Navigation -->

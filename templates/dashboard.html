@@ -104,11 +104,11 @@
                                 <div class="row g-2">
                                     <div class="col-6">
                                         <label for="crossing_from_date" class="form-label text-muted small mb-1">From Date</label>
-                                        <input type="text" class="form-control form-control-sm" id="crossing_from_date" name="crossing_from_date" placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}">
+                                        <input type="date" class="form-control form-control-sm calendar-input" id="crossing_from_date" name="crossing_from_date">
                                     </div>
                                     <div class="col-6">
                                         <label for="crossing_to_date" class="form-label text-muted small mb-1">To Date</label>
-                                        <input type="text" class="form-control form-control-sm" id="crossing_to_date" name="crossing_to_date" placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}">
+                                        <input type="date" class="form-control form-control-sm calendar-input" id="crossing_to_date" name="crossing_to_date">
                                     </div>
                                 </div>
                             </div>
@@ -765,50 +765,29 @@ function showAlert(type, message) {
     container.insertAdjacentHTML('afterbegin', alertHtml);
 }
 
-// Date formatting and auto-population for crossing times
+// Auto-populate "to" date when "from" date is selected for crossing times
 document.addEventListener('DOMContentLoaded', function() {
     const fromDateField = document.getElementById('crossing_from_date');
     const toDateField = document.getElementById('crossing_to_date');
     
-    // Function to format date input as DD/MM/YYYY
-    function formatDateInput(input) {
-        let value = input.value.replace(/\D/g, ''); // Remove non-digits
-        if (value.length >= 2) {
-            value = value.substring(0, 2) + '/' + value.substring(2);
-        }
-        if (value.length >= 5) {
-            value = value.substring(0, 5) + '/' + value.substring(5, 9);
-        }
-        input.value = value;
-    }
-    
-    // Function to set today's date
+    // Function to set today's date in YYYY-MM-DD format
     function setTodayDate(field) {
         const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0');
-        const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = today.getFullYear();
-        field.value = `${day}/${month}/${year}`;
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        field.value = `${year}-${month}-${day}`;
     }
     
     if (fromDateField && toDateField) {
-        // Add input formatting
-        fromDateField.addEventListener('input', function() {
-            formatDateInput(this);
-        });
-        
-        toDateField.addEventListener('input', function() {
-            formatDateInput(this);
-        });
-        
-        // Auto-populate "to" date when "from" date is completed
-        fromDateField.addEventListener('blur', function() {
-            if (this.value && this.value.length === 10 && !toDateField.value) {
+        // Auto-populate "to" date when "from" date is selected
+        fromDateField.addEventListener('change', function() {
+            if (this.value && !toDateField.value) {
                 toDateField.value = this.value;
             }
         });
         
-        // Set today's date as default for from field
+        // Set today's date as default
         setTodayDate(fromDateField);
         setTodayDate(toDateField);
     }
