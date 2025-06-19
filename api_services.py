@@ -34,6 +34,29 @@ class WeatherService:
             data = response.json()
             
             records_processed = 0
+            new_records = 0
+            updated_records = 0
+            checked_dates = []
+            
+            if dry_run:
+                # For test runs, show what would be processed
+                daily = data.get('daily', {})
+                daily_times = daily.get('time', [])
+                
+                for date_str in daily_times:
+                    checked_dates.append(date_str)
+                    existing = WeatherData.query.filter_by(
+                        date=date_str,
+                        source='open-meteo'
+                    ).first()
+                    
+                    if not existing:
+                        new_records += 1
+                    else:
+                        updated_records += 1
+                
+                self.logger.log('WEATHER', f'TEST RUN: Checked {len(checked_dates)} dates. Would create {new_records} new records, update {updated_records} existing records. Dates: {", ".join(checked_dates[:3])}{"..." if len(checked_dates) > 3 else ""}')
+                return f"Test completed: {len(checked_dates)} dates checked, {new_records} would be new, {updated_records} already exist"
             
             if not dry_run:
                 # Process daily data for weather overview
