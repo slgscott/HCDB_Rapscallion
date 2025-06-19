@@ -407,16 +407,18 @@ class CrossingService:
                 
                 for row in rows:
                     try:
-                        # Get the full text content of the row
-                        row_text = row.get_text(strip=True)
-                        self.logger.log('CROSSING', f'Processing row: {row_text[:100]}', level='DEBUG')
+                        # Get all table cells
+                        cells = row.find_all('td')
+                        if len(cells) < 6:
+                            self.logger.log('CROSSING', f'Row has {len(cells)} cells, expected at least 6', level='DEBUG')
+                            continue
                         
-                        # Parse format: "Wed1st06:35 until 13:10..."
-                        # Extract day number using regex
+                        # Extract day from second cell (1st, 2nd, etc.)
+                        day_text = cells[1].get_text(strip=True)
                         import re
-                        day_match = re.search(r'(\d{1,2})(st|nd|rd|th)', row_text)
+                        day_match = re.search(r'(\d{1,2})(st|nd|rd|th)', day_text)
                         if not day_match:
-                            self.logger.log('CROSSING', f'No day found in: {row_text[:50]}', level='DEBUG')
+                            self.logger.log('CROSSING', f'No day found in: {day_text}', level='DEBUG')
                             continue
                         
                         day_of_month = int(day_match.group(1))
@@ -424,15 +426,60 @@ class CrossingService:
                         
                         self.logger.log('CROSSING', f'Found date: {crossing_date}', level='INFO')
                         
-                        # Parse time ranges using regex
-                        # Pattern: "time until time"
-                        time_ranges = re.findall(r'(\d{2}:\d{2})\s+until\s+(\d{2}:\d{2})', row_text)
+                        # Extract time ranges from cells 2-5 (0-indexed)
+                        # Cell 2: Safe Period 1, Cell 3: Unsafe Period 1
+                        # Cell 4: Safe Period 2, Cell 5: Unsafe Period 2
+                        safe_1_text = cells[2].get_text(strip=True) if len(cells) > 2 else ""
+                        unsafe_1_text = cells[3].get_text(strip=True) if len(cells) > 3 else ""
+                        safe_2_text = cells[4].get_text(strip=True) if len(cells) > 4 else ""
+                        unsafe_2_text = cells[5].get_text(strip=True) if len(cells) > 5 else ""
                         
-                        if len(time_ranges) < 2:
-                            self.logger.log('CROSSING', f'Insufficient time ranges in: {row_text[:50]}', level='DEBUG')
-                            continue
+                        self.logger.log('CROSSING', f'Times: Safe1={safe_1_text}, Unsafe1={unsafe_1_text}', level='INFO')
                         
-                        self.logger.log('CROSSING', f'Found {len(time_ranges)} time ranges: {time_ranges}', level='INFO')
+                        # Parse time patterns "HH:MM until HH:MM"
+                        time_pattern = r'(\d{1,2}:\d{2})\s+until\s+(\d{1,2}:\d{2})'
+                        
+                        safe_1_match = re.search(time_pattern, safe_1_text)
+                        unsafe_1_match = re.search(time_pattern, unsafe_1_text)
+                        safe_2_match = re.search(time_pattern, safe_2_text)
+                        unsafe_2_match = re.search(time_pattern, unsafe_2_text)
+                        
+                        # Check if record already exists
+                        existing = CrossingTimes.query.filter_by(date=crossing_date.strftime('%Y-%m-%d')).first()
+                        
+                        if existing:
+                            # Update existing record
+                            crossing_record = existing
+                        else:
+                            # Create new record
+                            crossing_record = CrossingTimes()
+                            crossing_record.date = crossing_date.strftime('%Y-%m-%d')
+                            crossing_record.status = 'active'
+                            crossing_record.notes = 'Official data from Northumberland County Council'
+                        
+                        # Update times based on the parsed data
+                        if safe_1_match:
+                            crossing_record.safe_from_1 = safe_1_match.group(1)
+                            crossing_record.safe_to_1 = safe_1_match.group(2)
+                        
+                        if unsafe_1_match:
+                            crossing_record.unsafe_from_1 = unsafe_1_match.group(1)
+                            crossing_record.unsafe_to_1 = unsafe_1_match.group(2)
+                        
+                        if safe_2_match:
+                            crossing_record.safe_from_2 = safe_2_match.group(1)
+                            crossing_record.safe_to_2 = safe_2_match.group(2)
+                        
+                        if unsafe_2_match:
+                            crossing_record.unsafe_from_2 = unsafe_2_match.group(1)
+                            crossing_record.unsafe_to_2 = unsafe_2_match.group(2)
+                        
+                        # Add to session if new
+                        if not existing:
+                            db.session.add(crossing_record)
+                        
+                        records_processed += 1
+                        self.logger.log('CROSSING', f'Successfully processed crossing data for {crossing_date}', level='INFO')
                         
                         # Check if record already exists
                         existing = CrossingTimes.query.filter_by(date=crossing_date.strftime('%Y-%m-%d')).first()
