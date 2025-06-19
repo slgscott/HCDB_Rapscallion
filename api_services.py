@@ -198,6 +198,13 @@ class TideService:
                 'interval': 60  # 60-minute intervals
             }
             
+            if dry_run:
+                # For test runs, show what would be processed without making the API call
+                self.logger.log('TIDE', f'TEST RUN: Would request tide data for station {station_id} from {start_date} to {end_date}')
+                self.logger.log('TIDE', f'TEST RUN: API endpoint: {url}')
+                self.logger.log('TIDE', f'TEST RUN: Headers configured: {bool(api_key)}')
+                return f"Test setup complete: Station {station_id}, dates {start_date} to {end_date}, API key configured: {bool(api_key)}"
+            
             response = requests.get(url, headers=headers, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
