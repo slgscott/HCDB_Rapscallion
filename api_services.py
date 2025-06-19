@@ -424,18 +424,9 @@ class CrossingService:
                         # Log each date found for debugging
                         self.logger.log('CROSSING', f'Found date: {crossing_date}, range: {start_date} to {end_date}', level='INFO')
                         
-                        # Since we scrape one month at a time based on the URL (month/year),
-                        # we should accept all dates from the month we're currently scraping
-                        # Only filter if date is significantly outside the requested range
-                        if crossing_date.year < start_date.year or crossing_date.year > end_date.year:
-                            self.logger.log('CROSSING', f'Skipping {crossing_date} - wrong year', level='DEBUG')
-                            continue
-                        
-                        if crossing_date.month < start_date.month or crossing_date.month > end_date.month:
-                            # Only skip if month is clearly outside range (accounting for year boundaries)
-                            if not (start_date.year < crossing_date.year < end_date.year):
-                                self.logger.log('CROSSING', f'Skipping {crossing_date} - wrong month', level='DEBUG')
-                                continue
+                        # Temporarily disable all date filtering to test database save
+                        # Since the scraper only fetches one month at a time anyway,
+                        # we should accept all dates from the scraped page
                         
                         # Extract safe times
                         safe_time_1 = cells[2].get_text(strip=True)
