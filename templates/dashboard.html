@@ -108,10 +108,19 @@
                                 {{ script_status.crossing.status|title }}
                             </span>
                         </p>
-                        <p class="card-text">
-                            <strong>Last Run:</strong><br>
-                            <small>{{ script_status.crossing.last_run or 'Never' }}</small>
-                        </p>
+                        
+                        <!-- Date Range Selection -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="crossing_from_date" class="form-label"><strong>From Date:</strong></label>
+                                <input type="date" class="form-control" id="crossing_from_date" name="crossing_from_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="crossing_to_date" class="form-label"><strong>To Date:</strong></label>
+                                <input type="date" class="form-control" id="crossing_to_date" name="crossing_to_date">
+                            </div>
+                        </div>
+                        
                         <div class="d-grid gap-2">
                             <button class="btn btn-outline-secondary btn-lg" onclick="runScript('crossing', true)">
                                 <i class="fas fa-vial me-1"></i>Test Run
@@ -746,5 +755,19 @@ function showAlert(type, message) {
     const container = document.querySelector('main .container-fluid');
     container.insertAdjacentHTML('afterbegin', alertHtml);
 }
+
+// Auto-populate "to" date when "from" date is selected for crossing times
+document.addEventListener('DOMContentLoaded', function() {
+    const fromDateField = document.getElementById('crossing_from_date');
+    const toDateField = document.getElementById('crossing_to_date');
+    
+    if (fromDateField && toDateField) {
+        fromDateField.addEventListener('change', function() {
+            if (this.value && !toDateField.value) {
+                toDateField.value = this.value;
+            }
+        });
+    }
+});
 </script>
 {% endblock %}
