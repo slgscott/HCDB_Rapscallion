@@ -72,10 +72,10 @@
             <div class="card-body">
                 {% if logs %}
                     {% for log in logs %}
-                        <div class="log-entry mb-2 p-2 border rounded">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="log-entry py-1 px-2 mb-1 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <span class="badge me-2 
+                                    <span class="badge me-2 small
                                         {% if log.level == 'ERROR' %}bg-danger
                                         {% elif log.level == 'WARNING' %}bg-warning text-dark
                                         {% elif log.level == 'INFO' %}bg-info
@@ -84,19 +84,16 @@
                                         {% endif %}">
                                         {{ log.level }}
                                     </span>
-                                    <strong class="component-name">{{ log.component }}</strong>
+                                    <strong class="component-name me-2">{{ log.component }}</strong>
+                                    <span class="log-message">{{ log.message }}</span>
                                 </div>
-                                <small class="text-muted">
+                                <small class="text-muted text-nowrap ms-2">
                                     {{ format_datetime_uk(log.timestamp) }}
                                 </small>
                             </div>
                             
-                            <div class="log-message">
-                                {{ log.message }}
-                            </div>
-                            
                             {% if log.details %}
-                                <div class="log-details mt-1">
+                                <div class="log-details ms-4 mt-1">
                                     <small class="text-muted">
                                         <strong>Details:</strong> {{ log.details }}
                                     </small>
