@@ -345,9 +345,24 @@ def run_script(script_name):
         elif script_name == 'tides':
             result = tide_service.update_tide_data(dry_run=dry_run)
         elif script_name == 'crossing':
-            # Get date parameters from request (already in YYYY-MM-DD format from HTML5 date inputs)
-            from_date = data.get('from_date')
-            to_date = data.get('to_date')
+            # Get date parameters from request and convert DD/MM/YYYY to YYYY-MM-DD
+            from_date_raw = data.get('from_date')
+            to_date_raw = data.get('to_date')
+            
+            def parse_date(date_str):
+                """Convert DD/MM/YYYY to YYYY-MM-DD format"""
+                if not date_str:
+                    return None
+                try:
+                    if '/' in date_str:
+                        day, month, year = date_str.split('/')
+                        return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+                    return date_str  # Already in correct format
+                except:
+                    return None
+            
+            from_date = parse_date(from_date_raw)
+            to_date = parse_date(to_date_raw)
             result = crossing_service.update_crossing_data(dry_run=dry_run, from_date=from_date, to_date=to_date)
         else:
             return jsonify({'status': 'error', 'message': 'Invalid script name'}), 400
