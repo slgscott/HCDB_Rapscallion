@@ -295,10 +295,9 @@ function refreshLogsContent() {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         
-        // Extract just the logs table content
-        const newLogsContent = tempDiv.querySelector('#logs .table-responsive');
-        if (newLogsContent && logsTableContainer) {
-            logsTableContainer.innerHTML = newLogsContent.innerHTML;
+        // For AJAX requests, the response is just the table HTML
+        if (logsTableContainer && html.trim()) {
+            logsTableContainer.innerHTML = html;
         }
     })
     .catch(error => {

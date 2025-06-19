@@ -123,6 +123,10 @@ def logs():
     levels = db.session.query(SystemLog.level).distinct().all()
     components = db.session.query(SystemLog.component).distinct().all()
     
+    # Check if this is an AJAX request for just the table content
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('logs_table.html', logs=logs)
+    
     return render_template('logs.html',
                          logs=logs,
                          pagination=pagination,
