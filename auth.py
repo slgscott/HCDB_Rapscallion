@@ -16,7 +16,7 @@ def login_required(f):
 
 def check_auth(username=None, password=None):
     if username and password:
-        user = AdminUser.query.filter_by(username=username, is_active=True).first()
+        user = Users.query.filter_by(username=username, is_active=True).first()
         if user and check_password_hash(user.password_hash, password):
             return True
         return False
@@ -25,12 +25,12 @@ def check_auth(username=None, password=None):
 
 def create_admin_user(username, password, email=None):
     """Create a new admin user"""
-    existing_user = AdminUser.query.filter_by(username=username).first()
+    existing_user = Users.query.filter_by(username=username).first()
     if existing_user:
         return False
     
     password_hash = generate_password_hash(password)
-    user = AdminUser(
+    user = Users(
         username=username,
         password_hash=password_hash,
         email=email
@@ -42,7 +42,7 @@ def create_admin_user(username, password, email=None):
 
 def change_password(username, old_password, new_password):
     """Change user password"""
-    user = AdminUser.query.filter_by(username=username, is_active=True).first()
+    user = Users.query.filter_by(username=username, is_active=True).first()
     if not user or not check_password_hash(user.password_hash, old_password):
         return False
     

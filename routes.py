@@ -38,7 +38,7 @@ def login():
             flash('Username and password are required', 'error')
             return render_template('login.html')
         
-        user = AdminUser.query.filter_by(username=username, is_active=True).first()
+        user = Users.query.filter_by(username=username, is_active=True).first()
         if user and check_auth(username, password):
             session['admin_user'] = username
             session['logged_in'] = True
@@ -422,7 +422,7 @@ def initialize_admin():
     global admin_initialized
     if not admin_initialized:
         try:
-            if not AdminUser.query.first():
+            if not Users.query.first():
                 create_admin_user('admin', 'admin123')  # Default credentials
                 system_logger.log('INIT', 'Default admin user created (username: admin, password: admin123)')
         except Exception as e:

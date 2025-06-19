@@ -41,14 +41,20 @@ class WeatherData(db.Model):
     
     id = Column(Integer, primary_key=True)
     date = Column(Text, nullable=False)
-    forecast_day = Column(Integer, default=0)
-    temperature_high = Column(Float)
-    temperature_low = Column(Float)
-    conditions = Column(Text)
-    wind_speed = Column(Float)
-    wind_direction = Column(Text)
+    temperature = Column(Integer)
+    condition = Column(Text)
+    description = Column(Text)
+    wind_speed = Column(Integer)
     humidity = Column(Integer)
-    notes = Column(Text)
+    wind_direction = Column(Text)
+    temperature_min = Column(Float)
+    temperature_max = Column(Float)
+    precipitation_sum = Column(Float)
+    wind_speed_max = Column(Float)
+    wind_direction_dominant = Column(Integer)
+    uv_index_max = Column(Float)
+    source = Column(Text)
+    cloudcover = Column(Integer)
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
 
@@ -73,6 +79,11 @@ class Users(db.Model):
     email = Column(String(120))
     is_active = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, default=func.now())
+    
+    def __init__(self, username, password_hash, email=None):
+        self.username = username
+        self.password_hash = password_hash
+        self.email = email
 
 class SystemSettings(db.Model):
     __tablename__ = 'system_settings'
