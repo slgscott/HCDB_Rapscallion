@@ -25,11 +25,18 @@
                     {% set columns = {
                         'crossing_times': [
                             {'name': 'date', 'type': 'date', 'required': True, 'label': 'Date'},
-                            {'name': 'safe_crossing_time', 'type': 'time', 'required': False, 'label': 'Safe Crossing Time'},
-                            {'name': 'next_safe_time', 'type': 'time', 'required': False, 'label': 'Next Safe Time'},
-                            {'name': 'tide_height', 'type': 'number', 'required': False, 'step': '0.01', 'label': 'Tide Height (m)'},
-                            {'name': 'weather_conditions', 'type': 'text', 'required': False, 'label': 'Weather Conditions'},
-                            {'name': 'source_url', 'type': 'url', 'required': False, 'label': 'Source URL'}
+                            {'name': 'from_date', 'type': 'date', 'required': False, 'label': 'From Date', 'id': 'from_date'},
+                            {'name': 'to_date', 'type': 'date', 'required': False, 'label': 'To Date', 'id': 'to_date'},
+                            {'name': 'safe_from_1', 'type': 'time', 'required': False, 'label': 'Safe From 1'},
+                            {'name': 'safe_to_1', 'type': 'time', 'required': False, 'label': 'Safe To 1'},
+                            {'name': 'safe_from_2', 'type': 'time', 'required': False, 'label': 'Safe From 2'},
+                            {'name': 'safe_to_2', 'type': 'time', 'required': False, 'label': 'Safe To 2'},
+                            {'name': 'unsafe_from_1', 'type': 'time', 'required': False, 'label': 'Unsafe From 1'},
+                            {'name': 'unsafe_to_1', 'type': 'time', 'required': False, 'label': 'Unsafe To 1'},
+                            {'name': 'unsafe_from_2', 'type': 'time', 'required': False, 'label': 'Unsafe From 2'},
+                            {'name': 'unsafe_to_2', 'type': 'time', 'required': False, 'label': 'Unsafe To 2'},
+                            {'name': 'status', 'type': 'select', 'required': False, 'label': 'Status', 'options': ['active', 'inactive']},
+                            {'name': 'notes', 'type': 'text', 'required': False, 'label': 'Notes'}
                         ],
                         'tide_data': [
                             {'name': 'datetime', 'type': 'datetime-local', 'required': True, 'label': 'Date & Time'},
@@ -60,6 +67,17 @@
                             {% if field.type == 'text' %}
                                 <textarea class="form-control form-control-lg" id="{{ field.name }}" name="{{ field.name }}" 
                                           rows="3" {{ 'required' if field.required else '' }}>{{ record[field.name] if record and record[field.name] else field.default or '' }}</textarea>
+                            {% elif field.type == 'select' %}
+                                <select class="form-select form-select-lg" id="{{ field.name }}" name="{{ field.name }}" 
+                                        {{ 'required' if field.required else '' }}>
+                                    <option value="">Select {{ field.label }}</option>
+                                    {% for option in field.options %}
+                                        <option value="{{ option }}" 
+                                                {{ 'selected' if record and record[field.name] == option else '' }}>
+                                            {{ option|title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             {% elif field.type == 'datetime-local' %}
                                 {% set dt_value = '' %}
                                 {% if record and record[field.name] %}
@@ -68,7 +86,8 @@
                                 <input type="datetime-local" class="form-control form-control-lg" id="{{ field.name }}" name="{{ field.name }}" 
                                        value="{{ dt_value }}" {{ 'required' if field.required else '' }}>
                             {% else %}
-                                <input type="{{ field.type }}" class="form-control form-control-lg" id="{{ field.name }}" name="{{ field.name }}" 
+                                <input type="{{ field.type }}" class="form-control form-control-lg" 
+                                       id="{{ field.id if field.id else field.name }}" name="{{ field.name }}" 
                                        value="{{ record[field.name] if record and record[field.name] else field.default or '' }}"
                                        {% if field.step %}step="{{ field.step }}"{% endif %}
                                        {% if field.min %}min="{{ field.min }}"{% endif %}
@@ -91,4 +110,20 @@
         </div>
     </div>
 </div>
+
+<script>
+// Auto-populate "to" date when "from" date is selected for crossing times
+document.addEventListener('DOMContentLoaded', function() {
+    const fromDateField = document.getElementById('from_date');
+    const toDateField = document.getElementById('to_date');
+    
+    if (fromDateField && toDateField) {
+        fromDateField.addEventListener('change', function() {
+            if (this.value && !toDateField.value) {
+                toDateField.value = this.value;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

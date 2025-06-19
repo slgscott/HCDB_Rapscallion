@@ -7,6 +7,8 @@ class CrossingTimes(db.Model):
     
     id = Column(Integer, primary_key=True)
     date = Column(Text, nullable=False)
+    from_date = Column(Text)
+    to_date = Column(Text)
     safe_from_1 = Column(Text)
     safe_to_1 = Column(Text)
     safe_from_2 = Column(Text)
