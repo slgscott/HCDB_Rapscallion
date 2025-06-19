@@ -260,4 +260,4 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-console.log('Holy Island Database Administrator - Client application loaded');
+console.log('HCDB_Rapscallion - Client application loaded');
