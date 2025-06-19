@@ -6,7 +6,7 @@ from io import StringIO
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response
 from sqlalchemy import desc, asc
 from app import app, db
-from models import CrossingTimes, TideData, WeatherData, ApiSettings, AdminUser, SystemLog
+from models import CrossingTimes, TideData, WeatherData, ApiSettings, Users, SystemLog
 from auth import login_required, check_auth, create_admin_user
 from automation import AutomationManager
 from api_services import WeatherService, TideService, CrossingService

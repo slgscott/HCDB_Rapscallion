@@ -3,7 +3,7 @@ from functools import wraps
 from flask import session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from models import AdminUser
+from models import Users
 
 def login_required(f):
     @wraps(f)
