@@ -401,8 +401,18 @@ class CrossingService:
                     self.logger.log('CROSSING', f'Could not extract month/year from {actual_url}', level='WARNING')
                     continue
                 
-                # Find all table rows
+                # Find all table rows - debug the HTML structure
                 rows = soup.find_all('tr', class_='row')
+                self.logger.log('CROSSING', f'Found {len(rows)} rows with class="row"', level='INFO')
+                
+                # If no rows found with class='row', try finding all tr elements
+                if len(rows) == 0:
+                    all_rows = soup.find_all('tr')
+                    self.logger.log('CROSSING', f'Found {len(all_rows)} total tr elements', level='INFO')
+                    # Use first few rows for debugging
+                    for i, row in enumerate(all_rows[:5]):
+                        self.logger.log('CROSSING', f'Row {i}: {row.get("class", "no-class")} - {row.get_text(strip=True)[:100]}', level='INFO')
+                    rows = all_rows
                 
                 for row in rows:
                     cells = row.find_all('td')
