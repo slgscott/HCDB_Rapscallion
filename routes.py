@@ -1,7 +1,7 @@
 import os
 import json
 import csv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 from io import StringIO
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response
 from sqlalchemy import desc, asc
@@ -374,8 +374,12 @@ def export_data(table_name):
             record_dict = {}
             for column in record.__table__.columns:
                 value = getattr(record, column.name)
-                if isinstance(value, (datetime, timedelta)):
+                if isinstance(value, (datetime, date, time)):
                     value = value.isoformat()
+                elif isinstance(value, timedelta):
+                    value = str(value)
+                elif value is None:
+                    value = ''
                 record_dict[column.name] = value
             data.append(record_dict)
         
@@ -394,8 +398,12 @@ def export_data(table_name):
                 record_dict = {}
                 for column in record.__table__.columns:
                     value = getattr(record, column.name)
-                    if isinstance(value, (datetime, timedelta)):
+                    if isinstance(value, (datetime, date, time)):
                         value = value.isoformat()
+                    elif isinstance(value, timedelta):
+                        value = str(value)
+                    elif value is None:
+                        value = ''
                     record_dict[column.name] = value
                 writer.writerow(record_dict)
         
@@ -407,10 +415,12 @@ def export_data(table_name):
     return response
 
 # Initialize admin user if none exists - called from first request
+admin_initialized = False
+
 @app.before_request
 def initialize_admin():
-    # Only run once
-    if not hasattr(initialize_admin, 'done'):
+    global admin_initialized
+    if not admin_initialized:
         try:
             if not AdminUser.query.first():
                 create_admin_user('admin', 'admin123')  # Default credentials
@@ -418,4 +428,4 @@ def initialize_admin():
         except Exception as e:
             # Tables might not exist yet
             pass
-        initialize_admin.done = True
+        admin_initialized = True
