@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Holy Island Database Administrator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </h1>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="scripts-tab" data-bs-toggle="tab" data-bs-target="#scripts" type="button">
+            <i class="fas fa-code me-1"></i>Scripts
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button">
+            <i class="fas fa-clock me-1"></i>Schedule
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button">
+            <i class="fas fa-cog me-1"></i>Settings
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+            <i class="fas fa-chart-bar me-1"></i>Overview
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="dashboardTabsContent">
+    <!-- Scripts Tab -->
+    <div class="tab-pane fade show active" id="scripts" role="tabpanel">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cloud me-2"></i>Weather Update
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{{ 'success' if script_status.weather.status == 'active' else 'secondary' }}">
+                                {{ script_status.weather.status|title }}
+                            </span>
+                        </p>
+                        <p class="card-text">
+                            <strong>Last Run:</strong><br>
+                            <small>{{ script_status.weather.last_run or 'Never' }}</small>
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-secondary btn-lg" onclick="runScript('weather', true)">
+                                <i class="fas fa-vial me-1"></i>Test Run
+                            </button>
+                            <button class="btn btn-primary btn-lg" onclick="runScript('weather', false)">
+                                <i class="fas fa-play me-1"></i>Execute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-water me-2"></i>Tide Data Update
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{{ 'success' if script_status.tide.status == 'active' else 'secondary' }}">
+                                {{ script_status.tide.status|title }}
+                            </span>
+                        </p>
+                        <p class="card-text">
+                            <strong>Last Run:</strong><br>
+                            <small>{{ script_status.tide.last_run or 'Never' }}</small>
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-secondary btn-lg" onclick="runScript('tides', true)">
+                                <i class="fas fa-vial me-1"></i>Test Run
+                            </button>
+                            <button class="btn btn-primary btn-lg" onclick="runScript('tides', false)">
+                                <i class="fas fa-play me-1"></i>Execute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-road me-2"></i>Crossing Times
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{{ 'success' if script_status.crossing.status == 'active' else 'secondary' }}">
+                                {{ script_status.crossing.status|title }}
+                            </span>
+                        </p>
+                        <p class="card-text">
+                            <strong>Last Run:</strong><br>
+                            <small>{{ script_status.crossing.last_run or 'Never' }}</small>
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-secondary btn-lg" onclick="runScript('crossing', true)">
+                                <i class="fas fa-vial me-1"></i>Test Run
+                            </button>
+                            <button class="btn btn-primary btn-lg" onclick="runScript('crossing', false)">
+                                <i class="fas fa-play me-1"></i>Execute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Tab -->
+    <div class="tab-pane fade" id="schedule" role="tabpanel">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-power-off me-2"></i>Automation Control
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{{ 'success' if automation_status.running else 'danger' }} fs-6">
+                                {{ 'Running' if automation_status.running else 'Stopped' }}
+                            </span>
+                        </p>
+                        <div class="d-grid gap-2">
+                            {% if automation_status.running %}
+                                <button class="btn btn-danger btn-lg" onclick="stopAutomation()">
+                                    <i class="fas fa-stop me-1"></i>Stop Automation
+                                </button>
+                            {% else %}
+                                <button class="btn btn-success btn-lg" onclick="startAutomation()">
+                                    <i class="fas fa-play me-1"></i>Start Automation
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-alt me-2"></i>Scheduled Jobs
+                    </div>
+                    <div class="card-body">
+                        {% if automation_status.jobs %}
+                            {% for job in automation_status.jobs %}
+                                <div class="mb-2">
+                                    <strong>{{ job.name }}</strong><br>
+                                    <small class="text-muted">
+                                        Next run: {{ job.next_run or 'Not scheduled' }}
+                                    </small>
+                                </div>
+                                {% if not loop.last %}<hr>{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No scheduled jobs (automation stopped)</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>Schedule Information
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Weather Updates</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-clock me-1"></i>06:15 UK time (Morning)</li>
+                                    <li><i class="fas fa-clock me-1"></i>12:15 UK time (Afternoon)</li>
+                                    <li><i class="fas fa-clock me-1"></i>18:15 UK time (Evening)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Data Updates</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-clock me-1"></i>03:15 UK time (Tide Data)</li>
+                                    <li><i class="fas fa-clock me-1"></i>04:00 UK time (Crossing Times)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-pane fade" id="settings" role="tabpanel">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-envelope me-2"></i>Email Settings
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary btn-lg w-100" onclick="testEmail()">
+                            <i class="fas fa-paper-plane me-1"></i>Send Test Email
+                        </button>
+                        <p class="mt-2 text-muted small">
+                            Sends a test email to verify email configuration
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-download me-2"></i>Data Export
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="{{ url_for('export_data', table_name='crossing_times', format='csv') }}" 
+                                   class="btn btn-outline-primary btn-lg w-100 mb-2">
+                                    <i class="fas fa-file-csv me-1"></i>Crossing CSV
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url_for('export_data', table_name='tide_data', format='csv') }}" 
+                                   class="btn btn-outline-primary btn-lg w-100 mb-2">
+                                    <i class="fas fa-file-csv me-1"></i>Tide CSV
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="{{ url_for('export_data', table_name='weather_data', format='csv') }}" 
+                                   class="btn btn-outline-primary btn-lg w-100">
+                                    <i class="fas fa-file-csv me-1"></i>Weather CSV
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url_for('export_data', table_name='crossing_times', format='json') }}" 
+                                   class="btn btn-outline-secondary btn-lg w-100">
+                                    <i class="fas fa-file-code me-1"></i>JSON Export
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-pane fade" id="overview" role="tabpanel">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary">
+                    <div class="card-body text-center">
+                        <i class="fas fa-road fa-2x mb-2"></i>
+                        <h3>{{ crossing_count }}</h3>
+                        <p class="mb-0">Crossing Times</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card bg-info">
+                    <div class="card-body text-center">
+                        <i class="fas fa-water fa-2x mb-2"></i>
+                        <h3>{{ tide_count }}</h3>
+                        <p class="mb-0">Tide Records</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card bg-success">
+                    <div class="card-body text-center">
+                        <i class="fas fa-cloud fa-2x mb-2"></i>
+                        <h3>{{ weather_count }}</h3>
+                        <p class="mb-0">Weather Records</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </div>
+                    <div class="card-body">
+                        {% if recent_logs %}
+                            {% for log in recent_logs %}
+                                <div class="mb-2">
+                                    <span class="badge bg-{{ 'danger' if log.level == 'ERROR' else 'warning' if log.level == 'WARNING' else 'primary' }}">
+                                        {{ log.level }}
+                                    </span>
+                                    <strong>{{ log.component }}</strong>
+                                    <small class="text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                    <br>
+                                    <span>{{ log.message }}</span>
+                                </div>
+                                {% if not loop.last %}<hr>{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No recent activity</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function runScript(scriptName, dryRun) {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running...';
+    
+    fetch(`/api/scripts/${scriptName}/run`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ dry_run: dryRun })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showAlert('success', `${scriptName} script completed successfully. Records processed: ${data.result.records_processed}`);
+        } else {
+            showAlert('error', `Error running ${scriptName} script: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        showAlert('error', `Error running ${scriptName} script: ${error.message}`);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function startAutomation() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
+    
+    fetch('/api/automation/start', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showAlert('success', 'Automation started successfully');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showAlert('error', `Error starting automation: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        showAlert('error', `Error starting automation: ${error.message}`);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function stopAutomation() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Stopping...';
+    
+    fetch('/api/automation/stop', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showAlert('success', 'Automation stopped successfully');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showAlert('error', `Error stopping automation: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        showAlert('error', `Error stopping automation: ${error.message}`);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function testEmail() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+    
+    fetch('/api/test-email', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showAlert('success', 'Test email sent successfully');
+        } else {
+            showAlert('error', `Error sending test email: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        showAlert('error', `Error sending test email: ${error.message}`);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function showAlert(type, message) {
+    const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    const container = document.querySelector('main .container-fluid');
+    container.insertAdjacentHTML('afterbegin', alertHtml);
+}
+</script>
+{% endblock %}

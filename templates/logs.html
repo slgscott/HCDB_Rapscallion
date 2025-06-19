@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}System Logs - Holy Island Database Administrator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-file-alt me-2"></i>System Logs
+        </h1>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <form method="GET" class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <label for="level" class="form-label">Log Level</label>
+                        <select name="level" id="level" class="form-select form-select-lg">
+                            <option value="">All Levels</option>
+                            {% for level in levels %}
+                                <option value="{{ level }}" {{ 'selected' if current_filters.level == level else '' }}>
+                                    {{ level }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3 mb-2">
+                        <label for="component" class="form-label">Component</label>
+                        <select name="component" id="component" class="form-select form-select-lg">
+                            <option value="">All Components</option>
+                            {% for component in components %}
+                                <option value="{{ component }}" {{ 'selected' if current_filters.component == component else '' }}>
+                                    {{ component }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3 mb-2">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" name="date" id="date" class="form-control form-control-lg" 
+                               value="{{ current_filters.date }}">
+                    </div>
+                    
+                    <div class="col-md-3 mb-2 d-flex align-items-end">
+                        <div class="d-grid gap-2 w-100">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
+                            {% if current_filters.level or current_filters.component or current_filters.date %}
+                                <a href="{{ url_for('logs') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-times me-1"></i>Clear
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Logs Display -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if logs %}
+                    {% for log in logs %}
+                        <div class="log-entry mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge me-2 fs-6 
+                                        {% if log.level == 'ERROR' %}bg-danger
+                                        {% elif log.level == 'WARNING' %}bg-warning text-dark
+                                        {% elif log.level == 'INFO' %}bg-info
+                                        {% elif log.level == 'DEBUG' %}bg-secondary
+                                        {% else %}bg-primary
+                                        {% endif %}">
+                                        {{ log.level }}
+                                    </span>
+                                    <strong class="component-name">{{ log.component }}</strong>
+                                </div>
+                                <small class="text-muted">
+                                    {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+                                </small>
+                            </div>
+                            
+                            <div class="log-message">
+                                {{ log.message }}
+                            </div>
+                            
+                            {% if log.details %}
+                                <div class="log-details mt-2">
+                                    <small class="text-muted">
+                                        <strong>Details:</strong> {{ log.details }}
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if not loop.last %}
+                            <hr class="my-2">
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Pagination -->
+                    {% if pagination.pages > 1 %}
+                        <nav aria-label="Log pagination" class="mt-4">
+                            <ul class="pagination pagination-lg justify-content-center">
+                                {% if pagination.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('logs', 
+                                            page=pagination.prev_num,
+                                            level=current_filters.level,
+                                            component=current_filters.component,
+                                            date=current_filters.date) }}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != pagination.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('logs', 
+                                                    page=page_num,
+                                                    level=current_filters.level,
+                                                    component=current_filters.component,
+                                                    date=current_filters.date) }}">
+                                                    {{ page_num }}
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">…</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('logs', 
+                                            page=pagination.next_num,
+                                            level=current_filters.level,
+                                            component=current_filters.component,
+                                            date=current_filters.date) }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <h3 class="text-muted">No logs found</h3>
+                        {% if current_filters.level or current_filters.component or current_filters.date %}
+                            <p class="text-muted">No logs match your filter criteria.</p>
+                            <a href="{{ url_for('logs') }}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </a>
+                        {% else %}
+                            <p class="text-muted">System logs will appear here as the application runs.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.log-entry {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    background-color: var(--bs-dark);
+    border-color: var(--bs-gray-600) !important;
+}
+
+.log-message {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.component-name {
+    color: var(--bs-info);
+}
+
+.badge {
+    min-width: 80px;
+    text-align: center;
+}
+</style>
+{% endblock %}
