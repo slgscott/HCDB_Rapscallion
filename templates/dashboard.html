@@ -369,7 +369,7 @@
                                     <th>Safe Crossing 2</th>
                                     <th>Status</th>
                                     <th>Notes</th>
-                                    <th>Test Column</th>
+                                    <th>Last Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -433,6 +433,7 @@
                                     <th>Low Tide 1</th>
                                     <th>High Tide 2</th>
                                     <th>Low Tide 2</th>
+                                    <th>Last Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -471,6 +472,7 @@
                                             <span class="text-muted">N/A</span>
                                         {% endif %}
                                     </td>
+                                    <td>Updated: {{ tide.updated_at.strftime('%d/%m/%Y %H:%M') if tide.updated_at else 'Never' }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -501,6 +503,7 @@
                                     <th>Precipitation</th>
                                     <th>Wind</th>
                                     <th>UV & Cloud</th>
+                                    <th>Last Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -549,6 +552,7 @@
                                             <span class="text-muted">N/A</span>
                                         {% endif %}
                                     </td>
+                                    <td>Updated: {{ weather.updated_at.strftime('%d/%m/%Y %H:%M') if weather.updated_at else 'Never' }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
