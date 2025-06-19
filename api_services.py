@@ -199,11 +199,30 @@ class TideService:
             }
             
             if dry_run:
-                # For test runs, show what would be processed with correct API
-                self.logger.log('TIDE', f'TEST RUN: Would request tide data for station {station_id} from {start_date} to {end_date}')
-                self.logger.log('TIDE', f'TEST RUN: Using API V2 endpoint: {url}')
-                self.logger.log('TIDE', f'TEST RUN: Headers configured: {bool(api_key)}')
-                return f"Test setup complete: Station {station_id}, dates {start_date} to {end_date}, API V2 ready"
+                # For test runs, make actual API call to check response structure
+                try:
+                    response = requests.get(url, headers=headers, params=params, timeout=30)
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    self.logger.log('TIDE', f'TEST RUN: API call successful, received {len(data)} events')
+                    if len(data) > 0:
+                        first_event = data[0]
+                        self.logger.log('TIDE', f'TEST RUN: First event structure: {list(first_event.keys())}')
+                        self.logger.log('TIDE', f'TEST RUN: Sample event: DateTime={first_event.get("DateTime")}, EventType={first_event.get("EventType")}, Height={first_event.get("Height")}')
+                    
+                    # Count unique dates
+                    unique_dates = set()
+                    for event in data:
+                        event_time = datetime.fromisoformat(event['DateTime'].replace('Z', '+00:00'))
+                        uk_time = event_time.astimezone(pytz.timezone('Europe/London'))
+                        unique_dates.add(uk_time.strftime('%Y-%m-%d'))
+                    
+                    self.logger.log('TIDE', f'TEST RUN: Would process {len(unique_dates)} unique dates')
+                    return f"API test successful: {len(data)} events for {len(unique_dates)} dates"
+                except Exception as e:
+                    self.logger.log('TIDE', f'TEST RUN: API test failed: {str(e)}')
+                    return f"API test failed: {str(e)}"
             
             response = requests.get(url, headers=headers, params=params, timeout=30)
             response.raise_for_status()
@@ -212,32 +231,69 @@ class TideService:
             records_processed = 0
             
             if not dry_run:
-                for item in data:
-                    dt = datetime.fromisoformat(item['DateTime'])
-                    height = item['Height']
+                # Process TidalEvents API response - group by date and extract high/low tides
+                tide_events_by_date = {}
+                
+                for event in data:
+                    event_time = datetime.fromisoformat(event['DateTime'].replace('Z', '+00:00'))
+                    # Convert to UK timezone
+                    uk_time = event_time.astimezone(pytz.timezone('Europe/London'))
+                    date_str = uk_time.strftime('%Y-%m-%d')
                     
-                    # Check if record already exists
-                    existing = TideData.query.filter_by(
-                        datetime=dt,
-                        api_source='ukho'
-                    ).first()
+                    if date_str not in tide_events_by_date:
+                        tide_events_by_date[date_str] = {'high_tides': [], 'low_tides': []}
                     
-                    if not existing:
-                        tide_record = TideData(
-                            datetime=dt,
-                            height=height,
-                            tide_type=item.get('TideType'),
-                            location='Holy Island (Berwick)',
-                            api_source='ukho'
-                        )
-                        
+                    tide_info = {
+                        'time': uk_time.strftime('%H:%M'),
+                        'height': event['Height']
+                    }
+                    
+                    if event['EventType'] == 'HighWater':
+                        tide_events_by_date[date_str]['high_tides'].append(tide_info)
+                    elif event['EventType'] == 'LowWater':
+                        tide_events_by_date[date_str]['low_tides'].append(tide_info)
+                
+                # Create or update records for each date
+                for date_str, tides in tide_events_by_date.items():
+                    existing = TideData.query.filter_by(date=date_str).first()
+                    
+                    if existing:
+                        # Update existing record
+                        tide_record = existing
+                    else:
+                        # Create new record
+                        tide_record = TideData()
+                        tide_record.date = date_str
                         db.session.add(tide_record)
                         records_processed += 1
+                    
+                    # Sort tides by time and assign to fields
+                    high_tides = sorted(tides['high_tides'], key=lambda x: x['time'])
+                    low_tides = sorted(tides['low_tides'], key=lambda x: x['time'])
+                    
+                    if len(high_tides) >= 1:
+                        tide_record.high_tide_1_time = high_tides[0]['time']
+                        tide_record.high_tide_1_height = high_tides[0]['height']
+                    if len(high_tides) >= 2:
+                        tide_record.high_tide_2_time = high_tides[1]['time']
+                        tide_record.high_tide_2_height = high_tides[1]['height']
+                    
+                    if len(low_tides) >= 1:
+                        tide_record.low_tide_1_time = low_tides[0]['time']
+                        tide_record.low_tide_1_height = low_tides[0]['height']
+                    if len(low_tides) >= 2:
+                        tide_record.low_tide_2_time = low_tides[1]['time']
+                        tide_record.low_tide_2_height = low_tides[1]['height']
                 
                 db.session.commit()
             else:
-                # Dry run - just count potential records
-                records_processed = len(data)
+                # Dry run - count potential records by unique dates
+                unique_dates = set()
+                for event in data:
+                    event_time = datetime.fromisoformat(event['DateTime'].replace('Z', '+00:00'))
+                    uk_time = event_time.astimezone(pytz.timezone('Europe/London'))
+                    unique_dates.add(uk_time.strftime('%Y-%m-%d'))
+                records_processed = len(unique_dates)
             
             self.last_run = datetime.utcnow()
             result = f"Tide update completed. Records processed: {records_processed}"
