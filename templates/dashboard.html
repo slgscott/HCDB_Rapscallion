@@ -19,8 +19,8 @@
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button">
-            <i class="fas fa-clock me-1"></i>Schedule
+        <button class="nav-link" id="automation-tab" data-bs-toggle="tab" data-bs-target="#automation" type="button">
+            <i class="fas fa-robot me-1"></i>Automation
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -137,13 +137,46 @@
         </div>
     </div>
 
-    <!-- Schedule Tab -->
-    <div class="tab-pane fade" id="schedule" role="tabpanel">
+    <!-- Automation Tab -->
+    <div class="tab-pane fade" id="automation" role="tabpanel">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>About Automation
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">Automated data collection runs on the following schedule:</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-cloud me-1"></i>Weather Updates</h6>
+                                <ul class="list-unstyled small">
+                                    <li>• Morning: 6:15 AM</li>
+                                    <li>• Afternoon: 12:15 PM</li>
+                                    <li>• Evening: 6:15 PM</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-water me-1"></i>Tide Data</h6>
+                                <ul class="list-unstyled small">
+                                    <li>• Daily: 3:15 AM</li>
+                                </ul>
+                                <h6 class="mt-3"><i class="fas fa-road me-1"></i>Crossing Times</h6>
+                                <ul class="list-unstyled small">
+                                    <li>• Manual upload only</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="row">
             <div class="col-md-6 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-power-off me-2"></i>Automation Control
+                        <i class="fas fa-power-off me-2"></i>System Control
                     </div>
                     <div class="card-body">
                         <!-- Automation Status Message -->
@@ -159,36 +192,41 @@
                                 <button class="btn btn-danger btn-lg automation-control" onclick="stopAutomation(event)">
                                     <i class="fas fa-stop me-1"></i>Stop Automation
                                 </button>
+                                <p class="mt-3 text-success small">
+                                    <i class="fas fa-check-circle me-1"></i>Automation is running - data will be collected automatically
+                                </p>
                             {% else %}
                                 <button class="btn btn-success btn-lg automation-control" onclick="startAutomation(event)">
                                     <i class="fas fa-play me-1"></i>Start Automation
                                 </button>
+                                <p class="mt-3 text-muted small">
+                                    <i class="fas fa-pause-circle me-1"></i>Automation is stopped - no automatic data collection
+                                </p>
                             {% endif %}
                         </div>
-                        <p class="mt-3 text-muted small">
-                            Controls automated data collection for weather and tide information
-                        </p>
                     </div>
                 </div>
             </div>
             
-            {% if automation_status.running %}
             <div class="col-md-6 mb-3">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-calendar-alt me-2"></i>Active Jobs</span>
+                        <span><i class="fas fa-calendar-check me-2"></i>Next Scheduled Runs</span>
                         <div id="jobs-polling-indicator" class="text-muted small" style="display: none;">
                             <i class="fas fa-sync fa-spin me-1"></i>Checking...
                         </div>
                     </div>
                     <div class="card-body">
                         <div id="scheduled-jobs-list">
-                            <p class="text-muted">Loading active jobs...</p>
+                            {% if automation_status.running %}
+                                <p class="text-muted">Loading next scheduled runs...</p>
+                            {% else %}
+                                <p class="text-muted">Start automation to see next scheduled runs</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
             
 
         </div>
@@ -807,7 +845,7 @@ function updateScheduledJobsDisplay() {
                 } else if (data.running) {
                     jobsList.innerHTML = '<p class="text-muted">No scheduled jobs found.</p>';
                 } else {
-                    jobsList.innerHTML = '<p class="text-muted">Automation is inactive. Start automation to see scheduled jobs.</p>';
+                    jobsList.innerHTML = '<p class="text-muted">Start automation to see next scheduled runs</p>';
                 }
             }
         })
@@ -895,16 +933,20 @@ function updateAutomationState() {
                 }
             }
             
-            // Show/hide and update scheduled jobs section
-            const jobsContainer = document.querySelector('#schedule .col-md-6:last-child');
-            if (jobsContainer) {
+            // Update status text and scheduled jobs
+            const statusText = document.querySelector('#automation .text-success, #automation .text-muted');
+            if (statusText) {
                 if (data.running) {
-                    jobsContainer.style.display = 'block';
-                    updateScheduledJobsDisplay();
+                    statusText.className = 'mt-3 text-success small';
+                    statusText.innerHTML = '<i class="fas fa-check-circle me-1"></i>Automation is running - data will be collected automatically';
                 } else {
-                    jobsContainer.style.display = 'none';
+                    statusText.className = 'mt-3 text-muted small';
+                    statusText.innerHTML = '<i class="fas fa-pause-circle me-1"></i>Automation is stopped - no automatic data collection';
                 }
             }
+            
+            // Always update scheduled jobs display
+            updateScheduledJobsDisplay();
         })
         .catch(error => {
             console.error('Error updating automation state:', error);
