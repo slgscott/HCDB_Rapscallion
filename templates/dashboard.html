@@ -146,13 +146,6 @@
                         <i class="fas fa-power-off me-2"></i>Automation Control
                     </div>
                     <div class="card-body">
-                        <p class="card-text">
-                            <strong>Status:</strong> 
-                            <span class="badge automation-status bg-{{ 'success' if automation_status.running else 'secondary' }} fs-6">
-                                {{ 'Active' if automation_status.running else 'Inactive' }}
-                            </span>
-                        </p>
-                        
                         <!-- Automation Status Message -->
                         <div id="automation-status-message" class="alert d-none" role="alert">
                             <div class="d-flex align-items-center">
@@ -172,50 +165,30 @@
                                 </button>
                             {% endif %}
                         </div>
+                        <p class="mt-3 text-muted small">
+                            Controls automated data collection for weather and tide information
+                        </p>
                     </div>
                 </div>
             </div>
             
+            {% if automation_status.running %}
             <div class="col-md-6 mb-3">
                 <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-calendar-alt me-2"></i>Scheduled Jobs
-                    </div>
-                    <div class="card-body">
-                        {% if automation_status.jobs %}
-                            {% for job in automation_status.jobs %}
-                                <div class="mb-2">
-                                    <strong>{{ job.name }}</strong><br>
-                                    <small class="text-muted">
-                                        Next run: {{ job.next_run or 'Not scheduled' }}
-                                    </small>
-                                </div>
-                                {% if not loop.last %}<hr>{% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted">No scheduled jobs (automation stopped)</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-8 mb-3">
-                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-info-circle me-2"></i>Schedule Information</span>
+                        <span><i class="fas fa-calendar-alt me-2"></i>Active Jobs</span>
                         <div id="jobs-polling-indicator" class="text-muted small" style="display: none;">
-                            <i class="fas fa-sync fa-spin me-1"></i>Checking backend...
+                            <i class="fas fa-sync fa-spin me-1"></i>Checking...
                         </div>
                     </div>
                     <div class="card-body">
                         <div id="scheduled-jobs-list">
-                            <p class="text-muted">Loading scheduled jobs...</p>
+                            <p class="text-muted">Loading active jobs...</p>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endif %}
             
 
         </div>
@@ -908,13 +881,6 @@ function updateAutomationState() {
     fetch('/api/automation/status')
         .then(response => response.json())
         .then(data => {
-            // Update status badge
-            const statusBadge = document.querySelector('.automation-status');
-            if (statusBadge) {
-                statusBadge.className = `badge fs-6 ${data.running ? 'bg-success' : 'bg-secondary'}`;
-                statusBadge.textContent = data.running ? 'Active' : 'Inactive';
-            }
-            
             // Update control button
             const controlButton = document.querySelector('.automation-control');
             if (controlButton) {
@@ -929,8 +895,16 @@ function updateAutomationState() {
                 }
             }
             
-            // Update scheduled jobs display
-            updateScheduledJobsDisplay();
+            // Show/hide and update scheduled jobs section
+            const jobsContainer = document.querySelector('#schedule .col-md-6:last-child');
+            if (jobsContainer) {
+                if (data.running) {
+                    jobsContainer.style.display = 'block';
+                    updateScheduledJobsDisplay();
+                } else {
+                    jobsContainer.style.display = 'none';
+                }
+            }
         })
         .catch(error => {
             console.error('Error updating automation state:', error);
