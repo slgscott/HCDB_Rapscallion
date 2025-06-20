@@ -716,8 +716,20 @@ function startAutomation(event) {
     .then(data => {
         if (data.status === 'success') {
             showAutomationStatusMessage('Automation system started successfully', 'success');
+            // Immediately update button and status
+            const btn = event.target.closest('button') || event.target;
+            btn.className = 'btn btn-danger btn-lg automation-control';
+            btn.innerHTML = '<i class="fas fa-stop me-1"></i>Stop Automation';
+            btn.onclick = (event) => stopAutomation(event);
+            
+            const statusText = btn.parentElement.querySelector('p');
+            if (statusText) {
+                statusText.className = 'mt-3 text-success small';
+                statusText.innerHTML = '<i class="fas fa-check-circle me-1"></i>Automation is running - data will be collected automatically';
+            }
+            
             setTimeout(() => {
-                updateAutomationState();
+                updateScheduledJobsDisplay();
                 hideAutomationStatusMessage();
             }, 1500);
         } else {
@@ -763,8 +775,20 @@ function stopAutomation(event) {
     .then(data => {
         if (data.status === 'success') {
             showAutomationStatusMessage('Automation system stopped successfully', 'success');
+            // Immediately update button and status
+            const btn = event.target.closest('button') || event.target;
+            btn.className = 'btn btn-success btn-lg automation-control';
+            btn.innerHTML = '<i class="fas fa-play me-1"></i>Start Automation';
+            btn.onclick = (event) => startAutomation(event);
+            
+            const statusText = btn.parentElement.querySelector('p');
+            if (statusText) {
+                statusText.className = 'mt-3 text-muted small';
+                statusText.innerHTML = '<i class="fas fa-pause-circle me-1"></i>Automation is stopped - no automatic data collection';
+            }
+            
             setTimeout(() => {
-                updateAutomationState();
+                updateScheduledJobsDisplay();
                 hideAutomationStatusMessage();
             }, 1500);
         } else {
