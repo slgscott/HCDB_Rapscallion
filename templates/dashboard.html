@@ -660,73 +660,104 @@ function runScript(scriptName, dryRun) {
 
 function startAutomation(event) {
     event.preventDefault();
+    
+    // Check global state first
+    if (automationRequestInProgress) {
+        console.log('Automation request already in progress, ignoring');
+        return;
+    }
+    
     const btn = event.target.closest('button') || event.target;
     if (btn.disabled || btn.classList.contains('processing')) return;
     
+    automationRequestInProgress = true;
     btn.classList.add('processing');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
+    
+    console.log('Starting automation request...');
     
     fetch('/api/automation/start', {
         method: 'POST'
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Start automation response:', data);
         if (data.status === 'success') {
             showAlert('success', 'Automation started successfully');
-            // Refresh status indicators immediately
-            setTimeout(() => {
-                refreshStatusIndicators();
-            }, 500);
+            // Update status immediately
+            refreshStatusIndicators();
         } else {
             showAlert('error', `Error starting automation: ${data.message}`);
         }
     })
     .catch(error => {
+        console.error('Start automation error:', error);
         showAlert('error', `Error starting automation: ${error.message}`);
     })
     .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        btn.classList.remove('processing');
+        setTimeout(() => {
+            automationRequestInProgress = false;
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.classList.remove('processing');
+            console.log('Start automation request completed');
+        }, 1000); // Add small delay to prevent rapid re-clicking
     });
 }
 
 function stopAutomation(event) {
     event.preventDefault();
+    
+    // Check global state first
+    if (automationRequestInProgress) {
+        console.log('Automation request already in progress, ignoring');
+        return;
+    }
+    
     const btn = event.target.closest('button') || event.target;
     if (btn.disabled || btn.classList.contains('processing')) return;
     
+    automationRequestInProgress = true;
     btn.classList.add('processing');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Stopping...';
+    
+    console.log('Stopping automation request...');
     
     fetch('/api/automation/stop', {
         method: 'POST'
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Stop automation response:', data);
         if (data.status === 'success') {
             showAlert('success', 'Automation stopped successfully');
-            // Refresh status indicators immediately
-            setTimeout(() => {
-                refreshStatusIndicators();
-            }, 500);
+            // Update status immediately
+            refreshStatusIndicators();
         } else {
             showAlert('error', `Error stopping automation: ${data.message}`);
         }
     })
     .catch(error => {
+        console.error('Stop automation error:', error);
         showAlert('error', `Error stopping automation: ${error.message}`);
     })
     .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        btn.classList.remove('processing');
+        setTimeout(() => {
+            automationRequestInProgress = false;
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.classList.remove('processing');
+            console.log('Stop automation request completed');
+        }, 1000); // Add small delay to prevent rapid re-clicking
     });
 }
+
+// Global state to prevent duplicate automation requests
+let automationRequestInProgress = false;
 
 function testEmail() {
     const btn = event.target;
