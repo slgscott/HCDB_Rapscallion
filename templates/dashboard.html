@@ -205,6 +205,9 @@
                         <div id="scheduled-jobs-list">
                             <p class="text-muted">Loading scheduled jobs...</p>
                         </div>
+                        <div id="jobs-polling-indicator" class="text-muted small mt-2" style="display: none;">
+                            <i class="fas fa-sync fa-spin me-1"></i>Checking backend for updates...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -829,6 +832,13 @@ function stopScheduledJobsPolling() {
 
 // Update just the scheduled jobs display
 function updateScheduledJobsDisplay() {
+    const pollingIndicator = document.getElementById('jobs-polling-indicator');
+    
+    // Show polling indicator
+    if (pollingIndicator) {
+        pollingIndicator.style.display = 'block';
+    }
+    
     fetch('/api/automation/status')
         .then(response => response.json())
         .then(data => {
@@ -887,6 +897,18 @@ function updateScheduledJobsDisplay() {
         })
         .catch(error => {
             console.error('Error updating scheduled jobs:', error);
+            const jobsList = document.getElementById('scheduled-jobs-list');
+            if (jobsList) {
+                jobsList.innerHTML = '<p class="text-danger">Error loading scheduled jobs</p>';
+            }
+        })
+        .finally(() => {
+            // Hide polling indicator after delay
+            setTimeout(() => {
+                if (pollingIndicator) {
+                    pollingIndicator.style.display = 'none';
+                }
+            }, 500);
         });
 }
 
@@ -945,6 +967,14 @@ function testEmail() {
 
 function refreshStatusIndicators() {
     console.log('Refreshing automation status...');
+    
+    // Show polling indicator in automation status message if available
+    const statusMessage = document.getElementById('automation-status-message');
+    if (statusMessage && statusMessage.classList.contains('d-none')) {
+        showAutomationStatusMessage('Checking automation status...', 'info');
+        setTimeout(() => hideAutomationStatusMessage(), 2000);
+    }
+    
     fetch('/api/automation/status')
         .then(response => {
             console.log('Status response received:', response.status);
@@ -1083,5 +1113,28 @@ function getCrossingDates() {
 
 // Make form data accessible globally
 window.getCrossingDates = getCrossingDates;
+
+// Initialize page on load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard page loaded, checking automation status...');
+    
+    // Check initial automation state and start polling if needed
+    fetch('/api/automation/status')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Initial automation status:', data);
+            if (data.running) {
+                console.log('Automation is running, starting scheduled jobs polling');
+                startScheduledJobsPolling();
+            }
+            updateScheduledJobsDisplay();
+        })
+        .catch(error => {
+            console.error('Error checking initial automation status:', error);
+        });
+    
+    // Start periodic status refresh every 30 seconds
+    setInterval(refreshStatusIndicators, 30000);
+});
 </script>
 {% endblock %}
