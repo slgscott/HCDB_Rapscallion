@@ -143,17 +143,17 @@
                     <div class="card-body">
                         <p class="card-text">
                             <strong>Status:</strong> 
-                            <span class="badge bg-{{ 'success' if automation_status.running else 'danger' }} fs-6">
-                                {{ 'Running' if automation_status.running else 'Stopped' }}
+                            <span class="badge automation-status bg-{{ 'success' if automation_status.running else 'secondary' }} fs-6">
+                                {{ 'Active' if automation_status.running else 'Inactive' }}
                             </span>
                         </p>
                         <div class="d-grid gap-2">
                             {% if automation_status.running %}
-                                <button class="btn btn-danger btn-lg" onclick="stopAutomation()">
+                                <button class="btn btn-danger btn-lg automation-control" onclick="stopAutomation()">
                                     <i class="fas fa-stop me-1"></i>Stop Automation
                                 </button>
                             {% else %}
-                                <button class="btn btn-success btn-lg" onclick="startAutomation()">
+                                <button class="btn btn-success btn-lg automation-control" onclick="startAutomation()">
                                     <i class="fas fa-play me-1"></i>Start Automation
                                 </button>
                             {% endif %}
@@ -671,7 +671,14 @@ function startAutomation() {
     .then(data => {
         if (data.status === 'success') {
             showAlert('success', 'Automation started successfully');
-            setTimeout(() => location.reload(), 2000);
+            // Refresh status indicators immediately
+            setTimeout(() => {
+                if (typeof refreshStatusIndicators === 'function') {
+                    refreshStatusIndicators();
+                } else if (typeof HolyIslandDB !== 'undefined' && HolyIslandDB.refreshStatusIndicators) {
+                    HolyIslandDB.refreshStatusIndicators();
+                }
+            }, 1000);
         } else {
             showAlert('error', `Error starting automation: ${data.message}`);
         }
@@ -698,7 +705,14 @@ function stopAutomation() {
     .then(data => {
         if (data.status === 'success') {
             showAlert('success', 'Automation stopped successfully');
-            setTimeout(() => location.reload(), 2000);
+            // Refresh status indicators immediately
+            setTimeout(() => {
+                if (typeof refreshStatusIndicators === 'function') {
+                    refreshStatusIndicators();
+                } else if (typeof HolyIslandDB !== 'undefined' && HolyIslandDB.refreshStatusIndicators) {
+                    HolyIslandDB.refreshStatusIndicators();
+                }
+            }, 1000);
         } else {
             showAlert('error', `Error stopping automation: ${data.message}`);
         }
