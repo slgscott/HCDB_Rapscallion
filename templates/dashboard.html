@@ -933,8 +933,8 @@ function updateAutomationState() {
                 }
             }
             
-            // Update status text and scheduled jobs
-            const statusText = document.querySelector('#automation .text-success, #automation .text-muted');
+            // Update status text by finding the paragraph after the button
+            const statusText = controlButton ? controlButton.parentElement.querySelector('p') : null;
             if (statusText) {
                 if (data.running) {
                     statusText.className = 'mt-3 text-success small';
