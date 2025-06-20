@@ -198,15 +198,15 @@
         <div class="row">
             <div class="col-md-8 mb-3">
                 <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-info-circle me-2"></i>Schedule Information
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-info-circle me-2"></i>Schedule Information</span>
+                        <div id="jobs-polling-indicator" class="text-muted small" style="display: none;">
+                            <i class="fas fa-sync fa-spin me-1"></i>Checking backend...
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="scheduled-jobs-list">
                             <p class="text-muted">Loading scheduled jobs...</p>
-                        </div>
-                        <div id="jobs-polling-indicator" class="text-muted small mt-2" style="display: none;">
-                            <i class="fas fa-sync fa-spin me-1"></i>Checking backend for updates...
                         </div>
                     </div>
                 </div>
