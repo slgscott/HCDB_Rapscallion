@@ -147,6 +147,15 @@
                                 {{ 'Active' if automation_status.running else 'Inactive' }}
                             </span>
                         </p>
+                        
+                        <!-- Automation Status Message -->
+                        <div id="automation-status-message" class="alert d-none" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                                <span id="automation-status-text">Starting automation system...</span>
+                            </div>
+                        </div>
+                        
                         <div class="d-grid gap-2">
                             {% if automation_status.running %}
                                 <button class="btn btn-danger btn-lg automation-control" onclick="stopAutomation(event)">
@@ -676,6 +685,9 @@ function startAutomation(event) {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
     
+    // Show status message
+    showAutomationStatusMessage('Starting automation system...', 'info');
+    
     console.log('Starting automation request...');
     
     fetch('/api/automation/start', {
@@ -685,16 +697,37 @@ function startAutomation(event) {
     .then(data => {
         console.log('Start automation response:', data);
         if (data.status === 'success') {
-            showAlert('success', 'Automation started successfully');
-            // Update status immediately
-            refreshStatusIndicators();
+            showAutomationStatusMessage('Automation system is starting up...', 'warning');
+            
+            // Poll for jobs to appear (indicates system is fully ready)
+            let pollCount = 0;
+            const pollInterval = setInterval(() => {
+                fetch('/api/automation/status')
+                    .then(response => response.json())
+                    .then(statusData => {
+                        pollCount++;
+                        if (statusData.running && statusData.jobs && statusData.jobs.length > 0) {
+                            clearInterval(pollInterval);
+                            showAutomationStatusMessage(`Automation system active with ${statusData.jobs.length} scheduled jobs`, 'success');
+                            refreshStatusIndicators();
+                            setTimeout(() => hideAutomationStatusMessage(), 3000);
+                        } else if (pollCount > 10) { // Max 5 seconds
+                            clearInterval(pollInterval);
+                            showAutomationStatusMessage('Automation started but jobs may still be loading', 'warning');
+                            refreshStatusIndicators();
+                            setTimeout(() => hideAutomationStatusMessage(), 3000);
+                        }
+                    });
+            }, 500);
         } else {
-            showAlert('error', `Error starting automation: ${data.message}`);
+            showAutomationStatusMessage(`Error: ${data.message}`, 'danger');
+            setTimeout(() => hideAutomationStatusMessage(), 5000);
         }
     })
     .catch(error => {
         console.error('Start automation error:', error);
-        showAlert('error', `Error starting automation: ${error.message}`);
+        showAutomationStatusMessage(`Error starting automation: ${error.message}`, 'danger');
+        setTimeout(() => hideAutomationStatusMessage(), 5000);
     })
     .finally(() => {
         setTimeout(() => {
@@ -703,7 +736,7 @@ function startAutomation(event) {
             btn.innerHTML = originalText;
             btn.classList.remove('processing');
             console.log('Start automation request completed');
-        }, 1000); // Add small delay to prevent rapid re-clicking
+        }, 1000);
     });
 }
 
@@ -725,6 +758,9 @@ function stopAutomation(event) {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Stopping...';
     
+    // Show status message
+    showAutomationStatusMessage('Stopping automation system...', 'warning');
+    
     console.log('Stopping automation request...');
     
     fetch('/api/automation/stop', {
@@ -734,16 +770,18 @@ function stopAutomation(event) {
     .then(data => {
         console.log('Stop automation response:', data);
         if (data.status === 'success') {
-            showAlert('success', 'Automation stopped successfully');
-            // Update status immediately
+            showAutomationStatusMessage('Automation system stopped successfully', 'success');
             refreshStatusIndicators();
+            setTimeout(() => hideAutomationStatusMessage(), 3000);
         } else {
-            showAlert('error', `Error stopping automation: ${data.message}`);
+            showAutomationStatusMessage(`Error: ${data.message}`, 'danger');
+            setTimeout(() => hideAutomationStatusMessage(), 5000);
         }
     })
     .catch(error => {
         console.error('Stop automation error:', error);
-        showAlert('error', `Error stopping automation: ${error.message}`);
+        showAutomationStatusMessage(`Error stopping automation: ${error.message}`, 'danger');
+        setTimeout(() => hideAutomationStatusMessage(), 5000);
     })
     .finally(() => {
         setTimeout(() => {
@@ -752,12 +790,39 @@ function stopAutomation(event) {
             btn.innerHTML = originalText;
             btn.classList.remove('processing');
             console.log('Stop automation request completed');
-        }, 1000); // Add small delay to prevent rapid re-clicking
+        }, 1000);
     });
 }
 
 // Global state to prevent duplicate automation requests
 let automationRequestInProgress = false;
+
+// Helper functions for automation status messages
+function showAutomationStatusMessage(message, type = 'info') {
+    const messageDiv = document.getElementById('automation-status-message');
+    const textSpan = document.getElementById('automation-status-text');
+    
+    if (messageDiv && textSpan) {
+        textSpan.textContent = message;
+        messageDiv.className = `alert alert-${type}`;
+        messageDiv.classList.remove('d-none');
+        
+        // Hide spinner for success/error states
+        const spinner = messageDiv.querySelector('.spinner-border');
+        if (type === 'success' || type === 'danger') {
+            spinner.style.display = 'none';
+        } else {
+            spinner.style.display = 'inline-block';
+        }
+    }
+}
+
+function hideAutomationStatusMessage() {
+    const messageDiv = document.getElementById('automation-status-message');
+    if (messageDiv) {
+        messageDiv.classList.add('d-none');
+    }
+}
 
 function testEmail() {
     const btn = event.target;
