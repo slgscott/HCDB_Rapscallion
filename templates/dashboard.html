@@ -149,11 +149,11 @@
                         </p>
                         <div class="d-grid gap-2">
                             {% if automation_status.running %}
-                                <button class="btn btn-danger btn-lg automation-control" onclick="stopAutomation()">
+                                <button class="btn btn-danger btn-lg automation-control" onclick="stopAutomation(event)">
                                     <i class="fas fa-stop me-1"></i>Stop Automation
                                 </button>
                             {% else %}
-                                <button class="btn btn-success btn-lg automation-control" onclick="startAutomation()">
+                                <button class="btn btn-success btn-lg automation-control" onclick="startAutomation(event)">
                                     <i class="fas fa-play me-1"></i>Start Automation
                                 </button>
                             {% endif %}
@@ -658,10 +658,12 @@ function runScript(scriptName, dryRun) {
     });
 }
 
-function startAutomation() {
-    const btn = event.target;
-    if (btn.disabled) return; // Prevent double-clicks
+function startAutomation(event) {
+    event.preventDefault();
+    const btn = event.target.closest('button') || event.target;
+    if (btn.disabled || btn.classList.contains('processing')) return;
     
+    btn.classList.add('processing');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
@@ -674,7 +676,9 @@ function startAutomation() {
         if (data.status === 'success') {
             showAlert('success', 'Automation started successfully');
             // Refresh status indicators immediately
-            setTimeout(refreshStatusIndicators, 1000);
+            setTimeout(() => {
+                refreshStatusIndicators();
+            }, 500);
         } else {
             showAlert('error', `Error starting automation: ${data.message}`);
         }
@@ -685,13 +689,16 @@ function startAutomation() {
     .finally(() => {
         btn.disabled = false;
         btn.innerHTML = originalText;
+        btn.classList.remove('processing');
     });
 }
 
-function stopAutomation() {
-    const btn = event.target;
-    if (btn.disabled) return; // Prevent double-clicks
+function stopAutomation(event) {
+    event.preventDefault();
+    const btn = event.target.closest('button') || event.target;
+    if (btn.disabled || btn.classList.contains('processing')) return;
     
+    btn.classList.add('processing');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Stopping...';
@@ -704,7 +711,9 @@ function stopAutomation() {
         if (data.status === 'success') {
             showAlert('success', 'Automation stopped successfully');
             // Refresh status indicators immediately
-            setTimeout(refreshStatusIndicators, 1000);
+            setTimeout(() => {
+                refreshStatusIndicators();
+            }, 500);
         } else {
             showAlert('error', `Error stopping automation: ${data.message}`);
         }
@@ -715,6 +724,7 @@ function stopAutomation() {
     .finally(() => {
         btn.disabled = false;
         btn.innerHTML = originalText;
+        btn.classList.remove('processing');
     });
 }
 
@@ -745,28 +755,36 @@ function testEmail() {
 }
 
 function refreshStatusIndicators() {
+    console.log('Refreshing automation status...');
     fetch('/api/automation/status')
-        .then(response => response.json())
+        .then(response => {
+            console.log('Status response received:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Status data:', data);
+            
             // Update automation status indicator
             const statusBadge = document.querySelector('.automation-status');
             if (statusBadge) {
                 statusBadge.className = `badge fs-6 ${data.running ? 'bg-success' : 'bg-secondary'}`;
                 statusBadge.textContent = data.running ? 'Active' : 'Inactive';
+                console.log('Updated status badge to:', statusBadge.textContent);
             }
             
             // Update control button
             const controlButton = document.querySelector('.automation-control');
-            if (controlButton) {
+            if (controlButton && !controlButton.classList.contains('processing')) {
                 if (data.running) {
                     controlButton.className = 'btn btn-danger btn-lg automation-control';
                     controlButton.innerHTML = '<i class="fas fa-stop me-1"></i>Stop Automation';
-                    controlButton.onclick = stopAutomation;
+                    controlButton.onclick = (event) => stopAutomation(event);
                 } else {
                     controlButton.className = 'btn btn-success btn-lg automation-control';
                     controlButton.innerHTML = '<i class="fas fa-play me-1"></i>Start Automation';
-                    controlButton.onclick = startAutomation;
+                    controlButton.onclick = (event) => startAutomation(event);
                 }
+                console.log('Updated control button for running state:', data.running);
             }
             
             // Update scheduled jobs list
@@ -816,15 +834,19 @@ function refreshStatusIndicators() {
                     
                     jobsHtml += '</div>';
                     jobsList.innerHTML = jobsHtml;
+                    console.log('Updated jobs list with', data.jobs.length, 'jobs');
                 } else if (data.running) {
                     jobsList.innerHTML = '<p class="text-muted">No scheduled jobs found.</p>';
+                    console.log('No jobs found for running automation');
                 } else {
                     jobsList.innerHTML = '<p class="text-muted">Automation is inactive. Start automation to see scheduled jobs.</p>';
+                    console.log('Jobs list cleared - automation inactive');
                 }
             }
         })
         .catch(error => {
             console.error('Error refreshing status:', error);
+            showAlert('error', 'Failed to refresh automation status');
         });
 }
 
