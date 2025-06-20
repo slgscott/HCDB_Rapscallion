@@ -28,6 +28,11 @@
             <i class="fas fa-file-alt me-1"></i>Logs
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button">
+            <i class="fas fa-cog me-1"></i>Admin
+        </button>
+    </li>
     <li class="nav-item ms-auto" role="presentation">
         <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
             <i class="fas fa-table me-1"></i>View Data
@@ -212,7 +217,14 @@
                 </div>
             </div>
             
-            <div class="col-md-4 mb-3">
+
+        </div>
+    </div>
+
+    <!-- Admin Tab -->
+    <div class="tab-pane fade" id="admin" role="tabpanel">
+        <div class="row">
+            <div class="col-md-6 mb-3">
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-envelope me-2"></i>Email Test
@@ -229,7 +241,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Logs Tab -->
     <div class="tab-pane fade" id="logs" role="tabpanel">
