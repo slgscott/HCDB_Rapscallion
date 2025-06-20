@@ -192,14 +192,14 @@
                                 <button class="btn btn-danger btn-lg automation-control" onclick="stopAutomation(event)">
                                     <i class="fas fa-stop me-1"></i>Stop Automation
                                 </button>
-                                <p class="mt-3 text-success small">
+                                <p id="automation-status-text" class="mt-3 text-success small">
                                     <i class="fas fa-check-circle me-1"></i>Automation is running - data will be collected automatically
                                 </p>
                             {% else %}
                                 <button class="btn btn-success btn-lg automation-control" onclick="startAutomation(event)">
                                     <i class="fas fa-play me-1"></i>Start Automation
                                 </button>
-                                <p class="mt-3 text-muted small">
+                                <p id="automation-status-text" class="mt-3 text-muted small">
                                     <i class="fas fa-pause-circle me-1"></i>Automation is stopped - no automatic data collection
                                 </p>
                             {% endif %}
@@ -722,13 +722,10 @@ function startAutomation(event) {
             btn.innerHTML = '<i class="fas fa-stop me-1"></i>Stop Automation';
             btn.onclick = (event) => stopAutomation(event);
             
-            const statusText = btn.parentElement.querySelector('p');
+            const statusText = document.getElementById('automation-status-text');
             if (statusText) {
-                console.log('Updating status text to running state');
                 statusText.className = 'mt-3 text-success small';
                 statusText.innerHTML = '<i class="fas fa-check-circle me-1"></i>Automation is running - data will be collected automatically';
-            } else {
-                console.error('Could not find status text element');
             }
             
             setTimeout(() => {
@@ -784,13 +781,10 @@ function stopAutomation(event) {
             btn.innerHTML = '<i class="fas fa-play me-1"></i>Start Automation';
             btn.onclick = (event) => startAutomation(event);
             
-            const statusText = btn.parentElement.querySelector('p');
+            const statusText = document.getElementById('automation-status-text');
             if (statusText) {
-                console.log('Updating status text to stopped state');
                 statusText.className = 'mt-3 text-muted small';
                 statusText.innerHTML = '<i class="fas fa-pause-circle me-1"></i>Automation is stopped - no automatic data collection';
-            } else {
-                console.error('Could not find status text element');
             }
             
             setTimeout(() => {
@@ -963,8 +957,8 @@ function updateAutomationState() {
                 }
             }
             
-            // Update status text by finding the paragraph after the button
-            const statusText = controlButton ? controlButton.parentElement.querySelector('p') : null;
+            // Update status text using direct ID
+            const statusText = document.getElementById('automation-status-text');
             if (statusText) {
                 if (data.running) {
                     statusText.className = 'mt-3 text-success small';
