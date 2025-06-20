@@ -673,181 +673,106 @@ function runScript(scriptName, dryRun) {
 function startAutomation(event) {
     event.preventDefault();
     
-    // Check global state first
-    if (automationRequestInProgress) {
-        console.log('Automation request already in progress, ignoring');
-        return;
-    }
+    if (automationRequestInProgress) return;
     
     const btn = event.target.closest('button') || event.target;
-    if (btn.disabled || btn.classList.contains('processing')) return;
+    if (btn.disabled) return;
     
     automationRequestInProgress = true;
-    btn.classList.add('processing');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
     
-    // Show status message
     showAutomationStatusMessage('Starting automation system...', 'info');
-    
-    console.log('Starting automation request...');
     
     fetch('/api/automation/start', {
         method: 'POST'
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Start automation response:', data);
         if (data.status === 'success') {
-            showAutomationStatusMessage('Automation system is starting up...', 'warning');
-            
-            // Poll for jobs to appear (indicates system is fully ready)
-            let pollCount = 0;
-            const pollInterval = setInterval(() => {
-                fetch('/api/automation/status')
-                    .then(response => response.json())
-                    .then(statusData => {
-                        pollCount++;
-                        console.log(`Polling attempt ${pollCount}: running=${statusData.running}, jobs=${statusData.jobs ? statusData.jobs.length : 0}`);
-                        
-                        if (statusData.running && statusData.jobs && statusData.jobs.length > 0) {
-                            clearInterval(pollInterval);
-                            showAutomationStatusMessage(`Automation system active with ${statusData.jobs.length} scheduled jobs`, 'success');
-                            refreshStatusIndicators();
-                            startScheduledJobsPolling(); // Start continuous polling
-                            setTimeout(() => hideAutomationStatusMessage(), 3000);
-                        } else if (pollCount > 20) { // Max 10 seconds
-                            clearInterval(pollInterval);
-                            showAutomationStatusMessage('Automation started but jobs may still be loading', 'warning');
-                            refreshStatusIndicators();
-                            startScheduledJobsPolling(); // Start polling anyway
-                            setTimeout(() => hideAutomationStatusMessage(), 3000);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Polling error:', error);
-                        clearInterval(pollInterval);
-                        showAutomationStatusMessage('Error checking automation status', 'danger');
-                        setTimeout(() => hideAutomationStatusMessage(), 5000);
-                    });
-            }, 500);
+            showAutomationStatusMessage('Automation system started successfully', 'success');
+            setTimeout(() => {
+                location.reload(); // Simple reload to get fresh state
+            }, 1500);
         } else {
             showAutomationStatusMessage(`Error: ${data.message}`, 'danger');
-            setTimeout(() => hideAutomationStatusMessage(), 5000);
+            setTimeout(() => hideAutomationStatusMessage(), 3000);
         }
     })
     .catch(error => {
-        console.error('Start automation error:', error);
         showAutomationStatusMessage(`Error starting automation: ${error.message}`, 'danger');
-        setTimeout(() => hideAutomationStatusMessage(), 5000);
+        setTimeout(() => hideAutomationStatusMessage(), 3000);
     })
     .finally(() => {
         setTimeout(() => {
             automationRequestInProgress = false;
             btn.disabled = false;
             btn.innerHTML = originalText;
-            btn.classList.remove('processing');
-            console.log('Start automation request completed');
-        }, 1000);
+        }, 2000);
     });
 }
 
 function stopAutomation(event) {
     event.preventDefault();
     
-    // Check global state first
-    if (automationRequestInProgress) {
-        console.log('Automation request already in progress, ignoring');
-        return;
-    }
+    if (automationRequestInProgress) return;
     
     const btn = event.target.closest('button') || event.target;
-    if (btn.disabled || btn.classList.contains('processing')) return;
+    if (btn.disabled) return;
     
     automationRequestInProgress = true;
-    btn.classList.add('processing');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Stopping...';
     
-    // Show status message
     showAutomationStatusMessage('Stopping automation system...', 'warning');
-    
-    console.log('Stopping automation request...');
     
     fetch('/api/automation/stop', {
         method: 'POST'
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Stop automation response:', data);
         if (data.status === 'success') {
             showAutomationStatusMessage('Automation system stopped successfully', 'success');
-            refreshStatusIndicators();
-            setTimeout(() => hideAutomationStatusMessage(), 3000);
+            setTimeout(() => {
+                location.reload(); // Simple reload to get fresh state
+            }, 1500);
         } else {
             showAutomationStatusMessage(`Error: ${data.message}`, 'danger');
-            setTimeout(() => hideAutomationStatusMessage(), 5000);
+            setTimeout(() => hideAutomationStatusMessage(), 3000);
         }
     })
     .catch(error => {
-        console.error('Stop automation error:', error);
         showAutomationStatusMessage(`Error stopping automation: ${error.message}`, 'danger');
-        setTimeout(() => hideAutomationStatusMessage(), 5000);
+        setTimeout(() => hideAutomationStatusMessage(), 3000);
     })
     .finally(() => {
         setTimeout(() => {
             automationRequestInProgress = false;
             btn.disabled = false;
             btn.innerHTML = originalText;
-            btn.classList.remove('processing');
-            console.log('Stop automation request completed');
-        }, 1000);
+        }, 2000);
     });
 }
 
-// Global state to prevent duplicate automation requests
+// Global state for automation controls
 let automationRequestInProgress = false;
-let scheduledJobsPollingInterval = null;
 
-// Start polling for scheduled jobs updates
-function startScheduledJobsPolling() {
-    if (scheduledJobsPollingInterval) {
-        clearInterval(scheduledJobsPollingInterval);
-    }
-    
-    scheduledJobsPollingInterval = setInterval(() => {
-        updateScheduledJobsDisplay();
-    }, 3000); // Poll every 3 seconds
-}
-
-// Stop polling for scheduled jobs
-function stopScheduledJobsPolling() {
-    if (scheduledJobsPollingInterval) {
-        clearInterval(scheduledJobsPollingInterval);
-        scheduledJobsPollingInterval = null;
-    }
-}
-
-// Update just the scheduled jobs display
+// Simple function to update scheduled jobs display
 function updateScheduledJobsDisplay() {
+    const jobsList = document.getElementById('scheduled-jobs-list');
     const pollingIndicator = document.getElementById('jobs-polling-indicator');
     
-    // Show polling indicator
-    if (pollingIndicator) {
-        pollingIndicator.style.display = 'block';
-    }
+    if (pollingIndicator) pollingIndicator.style.display = 'block';
     
     fetch('/api/automation/status')
         .then(response => response.json())
         .then(data => {
-            const jobsList = document.getElementById('scheduled-jobs-list');
             if (jobsList) {
                 if (data.running && data.jobs && data.jobs.length > 0) {
                     let jobsHtml = '<div class="row">';
                     
-                    // Group jobs by type
                     const weatherJobs = data.jobs.filter(job => job.name.includes('Weather'));
                     const tideJobs = data.jobs.filter(job => job.name.includes('Tide'));
                     
@@ -880,7 +805,6 @@ function updateScheduledJobsDisplay() {
                         });
                         jobsHtml += '</ul>';
                         
-                        // Add manual only section
                         jobsHtml += '<div class="mt-3"><h6>Manual Only</h6><ul class="list-unstyled">';
                         jobsHtml += '<li><i class="fas fa-upload me-1"></i>Crossing Times (Manual Upload)</li>';
                         jobsHtml += '</ul></div></div>';
@@ -896,19 +820,14 @@ function updateScheduledJobsDisplay() {
             }
         })
         .catch(error => {
-            console.error('Error updating scheduled jobs:', error);
-            const jobsList = document.getElementById('scheduled-jobs-list');
             if (jobsList) {
                 jobsList.innerHTML = '<p class="text-danger">Error loading scheduled jobs</p>';
             }
         })
         .finally(() => {
-            // Hide polling indicator after delay
             setTimeout(() => {
-                if (pollingIndicator) {
-                    pollingIndicator.style.display = 'none';
-                }
-            }, 500);
+                if (pollingIndicator) pollingIndicator.style.display = 'none';
+            }, 300);
         });
 }
 
@@ -965,109 +884,7 @@ function testEmail() {
     });
 }
 
-function refreshStatusIndicators() {
-    console.log('Refreshing automation status...');
-    
-    // Show polling indicator in automation status message if available
-    const statusMessage = document.getElementById('automation-status-message');
-    if (statusMessage && statusMessage.classList.contains('d-none')) {
-        showAutomationStatusMessage('Checking automation status...', 'info');
-        setTimeout(() => hideAutomationStatusMessage(), 2000);
-    }
-    
-    fetch('/api/automation/status')
-        .then(response => {
-            console.log('Status response received:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Status data:', data);
-            
-            // Update automation status indicator
-            const statusBadge = document.querySelector('.automation-status');
-            if (statusBadge) {
-                statusBadge.className = `badge fs-6 ${data.running ? 'bg-success' : 'bg-secondary'}`;
-                statusBadge.textContent = data.running ? 'Active' : 'Inactive';
-                console.log('Updated status badge to:', statusBadge.textContent);
-            }
-            
-            // Update control button
-            const controlButton = document.querySelector('.automation-control');
-            if (controlButton && !controlButton.classList.contains('processing')) {
-                if (data.running) {
-                    controlButton.className = 'btn btn-danger btn-lg automation-control';
-                    controlButton.innerHTML = '<i class="fas fa-stop me-1"></i>Stop Automation';
-                    controlButton.onclick = (event) => stopAutomation(event);
-                } else {
-                    controlButton.className = 'btn btn-success btn-lg automation-control';
-                    controlButton.innerHTML = '<i class="fas fa-play me-1"></i>Start Automation';
-                    controlButton.onclick = (event) => startAutomation(event);
-                }
-                console.log('Updated control button for running state:', data.running);
-            }
-            
-            // Update scheduled jobs list
-            const jobsList = document.getElementById('scheduled-jobs-list');
-            if (jobsList) {
-                if (data.running && data.jobs && data.jobs.length > 0) {
-                    let jobsHtml = '<div class="row">';
-                    
-                    // Group jobs by type
-                    const weatherJobs = data.jobs.filter(job => job.name.includes('Weather'));
-                    const tideJobs = data.jobs.filter(job => job.name.includes('Tide'));
-                    
-                    if (weatherJobs.length > 0) {
-                        jobsHtml += '<div class="col-md-6"><h6>Weather Updates</h6><ul class="list-unstyled">';
-                        weatherJobs.forEach(job => {
-                            const nextRun = job.next_run ? new Date(job.next_run).toLocaleString('en-GB', {
-                                timeZone: 'Europe/London',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                day: '2-digit',
-                                month: '2-digit'
-                            }) : 'Not scheduled';
-                            jobsHtml += `<li><i class="fas fa-clock me-1"></i>${nextRun} - ${job.name}</li>`;
-                        });
-                        jobsHtml += '</ul></div>';
-                    }
-                    
-                    if (tideJobs.length > 0) {
-                        jobsHtml += '<div class="col-md-6"><h6>Data Updates</h6><ul class="list-unstyled">';
-                        tideJobs.forEach(job => {
-                            const nextRun = job.next_run ? new Date(job.next_run).toLocaleString('en-GB', {
-                                timeZone: 'Europe/London',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                day: '2-digit',
-                                month: '2-digit'
-                            }) : 'Not scheduled';
-                            jobsHtml += `<li><i class="fas fa-clock me-1"></i>${nextRun} - ${job.name}</li>`;
-                        });
-                        jobsHtml += '</ul>';
-                        
-                        // Add manual only section
-                        jobsHtml += '<div class="mt-3"><h6>Manual Only</h6><ul class="list-unstyled">';
-                        jobsHtml += '<li><i class="fas fa-upload me-1"></i>Crossing Times (Manual Upload)</li>';
-                        jobsHtml += '</ul></div></div>';
-                    }
-                    
-                    jobsHtml += '</div>';
-                    jobsList.innerHTML = jobsHtml;
-                    console.log('Updated jobs list with', data.jobs.length, 'jobs');
-                } else if (data.running) {
-                    jobsList.innerHTML = '<p class="text-muted">No scheduled jobs found.</p>';
-                    console.log('No jobs found for running automation');
-                } else {
-                    jobsList.innerHTML = '<p class="text-muted">Automation is inactive. Start automation to see scheduled jobs.</p>';
-                    console.log('Jobs list cleared - automation inactive');
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error refreshing status:', error);
-            showAlert('error', 'Failed to refresh automation status');
-        });
-}
+// Removed complex refresh function - using simple page reload approach
 
 function showAlert(type, message) {
     const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
@@ -1116,25 +933,7 @@ window.getCrossingDates = getCrossingDates;
 
 // Initialize page on load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Dashboard page loaded, checking automation status...');
-    
-    // Check initial automation state and start polling if needed
-    fetch('/api/automation/status')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Initial automation status:', data);
-            if (data.running) {
-                console.log('Automation is running, starting scheduled jobs polling');
-                startScheduledJobsPolling();
-            }
-            updateScheduledJobsDisplay();
-        })
-        .catch(error => {
-            console.error('Error checking initial automation status:', error);
-        });
-    
-    // Start periodic status refresh every 30 seconds
-    setInterval(refreshStatusIndicators, 30000);
+    updateScheduledJobsDisplay();
 });
 </script>
 {% endblock %}
