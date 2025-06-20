@@ -693,7 +693,8 @@ function startAutomation(event) {
         if (data.status === 'success') {
             showAutomationStatusMessage('Automation system started successfully', 'success');
             setTimeout(() => {
-                location.reload(); // Simple reload to get fresh state
+                updateAutomationState();
+                hideAutomationStatusMessage();
             }, 1500);
         } else {
             showAutomationStatusMessage(`Error: ${data.message}`, 'danger');
@@ -736,7 +737,8 @@ function stopAutomation(event) {
         if (data.status === 'success') {
             showAutomationStatusMessage('Automation system stopped successfully', 'success');
             setTimeout(() => {
-                location.reload(); // Simple reload to get fresh state
+                updateAutomationState();
+                hideAutomationStatusMessage();
             }, 1500);
         } else {
             showAutomationStatusMessage(`Error: ${data.message}`, 'danger');
@@ -884,7 +886,39 @@ function testEmail() {
     });
 }
 
-// Removed complex refresh function - using simple page reload approach
+// Update automation state without page reload
+function updateAutomationState() {
+    fetch('/api/automation/status')
+        .then(response => response.json())
+        .then(data => {
+            // Update status badge
+            const statusBadge = document.querySelector('.automation-status');
+            if (statusBadge) {
+                statusBadge.className = `badge fs-6 ${data.running ? 'bg-success' : 'bg-secondary'}`;
+                statusBadge.textContent = data.running ? 'Active' : 'Inactive';
+            }
+            
+            // Update control button
+            const controlButton = document.querySelector('.automation-control');
+            if (controlButton) {
+                if (data.running) {
+                    controlButton.className = 'btn btn-danger btn-lg automation-control';
+                    controlButton.innerHTML = '<i class="fas fa-stop me-1"></i>Stop Automation';
+                    controlButton.onclick = (event) => stopAutomation(event);
+                } else {
+                    controlButton.className = 'btn btn-success btn-lg automation-control';
+                    controlButton.innerHTML = '<i class="fas fa-play me-1"></i>Start Automation';
+                    controlButton.onclick = (event) => startAutomation(event);
+                }
+            }
+            
+            // Update scheduled jobs display
+            updateScheduledJobsDisplay();
+        })
+        .catch(error => {
+            console.error('Error updating automation state:', error);
+        });
+}
 
 function showAlert(type, message) {
     const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
