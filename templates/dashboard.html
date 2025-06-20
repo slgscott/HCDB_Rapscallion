@@ -680,7 +680,9 @@ function startAutomation(event) {
     
     automationRequestInProgress = true;
     const originalText = btn.innerHTML;
+    const originalClass = btn.className;
     btn.disabled = true;
+    btn.className = 'btn btn-secondary btn-lg automation-control';
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
     
     showAutomationStatusMessage('Starting automation system...', 'info');
@@ -709,6 +711,7 @@ function startAutomation(event) {
         setTimeout(() => {
             automationRequestInProgress = false;
             btn.disabled = false;
+            btn.className = originalClass;
             btn.innerHTML = originalText;
         }, 2000);
     });
@@ -724,7 +727,9 @@ function stopAutomation(event) {
     
     automationRequestInProgress = true;
     const originalText = btn.innerHTML;
+    const originalClass = btn.className;
     btn.disabled = true;
+    btn.className = 'btn btn-secondary btn-lg automation-control';
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Stopping...';
     
     showAutomationStatusMessage('Stopping automation system...', 'warning');
@@ -753,6 +758,7 @@ function stopAutomation(event) {
         setTimeout(() => {
             automationRequestInProgress = false;
             btn.disabled = false;
+            btn.className = originalClass;
             btn.innerHTML = originalText;
         }, 2000);
     });
