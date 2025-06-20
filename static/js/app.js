@@ -151,8 +151,8 @@ function refreshStatusIndicators() {
             // Update automation status indicator
             const statusBadge = document.querySelector('.automation-status');
             if (statusBadge) {
-                statusBadge.className = `badge fs-6 ${data.running ? 'bg-success' : 'bg-danger'}`;
-                statusBadge.textContent = data.running ? 'Running' : 'Stopped';
+                statusBadge.className = `badge fs-6 ${data.running ? 'bg-success' : 'bg-secondary'}`;
+                statusBadge.textContent = data.running ? 'Active' : 'Inactive';
             }
             
             // Update control button
@@ -166,6 +166,60 @@ function refreshStatusIndicators() {
                     controlButton.className = 'btn btn-success btn-lg automation-control';
                     controlButton.innerHTML = '<i class="fas fa-play me-1"></i>Start Automation';
                     controlButton.onclick = startAutomation;
+                }
+            }
+            
+            // Update scheduled jobs list
+            const jobsList = document.getElementById('scheduled-jobs-list');
+            if (jobsList) {
+                if (data.running && data.jobs && data.jobs.length > 0) {
+                    let jobsHtml = '<div class="row">';
+                    
+                    // Group jobs by type
+                    const weatherJobs = data.jobs.filter(job => job.name.includes('Weather'));
+                    const tideJobs = data.jobs.filter(job => job.name.includes('Tide'));
+                    
+                    if (weatherJobs.length > 0) {
+                        jobsHtml += '<div class="col-md-6"><h6>Weather Updates</h6><ul class="list-unstyled">';
+                        weatherJobs.forEach(job => {
+                            const nextRun = job.next_run ? new Date(job.next_run).toLocaleString('en-GB', {
+                                timeZone: 'Europe/London',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                day: '2-digit',
+                                month: '2-digit'
+                            }) : 'Not scheduled';
+                            jobsHtml += `<li><i class="fas fa-clock me-1"></i>${nextRun} - ${job.name}</li>`;
+                        });
+                        jobsHtml += '</ul></div>';
+                    }
+                    
+                    if (tideJobs.length > 0) {
+                        jobsHtml += '<div class="col-md-6"><h6>Data Updates</h6><ul class="list-unstyled">';
+                        tideJobs.forEach(job => {
+                            const nextRun = job.next_run ? new Date(job.next_run).toLocaleString('en-GB', {
+                                timeZone: 'Europe/London',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                day: '2-digit',
+                                month: '2-digit'
+                            }) : 'Not scheduled';
+                            jobsHtml += `<li><i class="fas fa-clock me-1"></i>${nextRun} - ${job.name}</li>`;
+                        });
+                        jobsHtml += '</ul>';
+                        
+                        // Add manual only section
+                        jobsHtml += '<div class="mt-3"><h6>Manual Only</h6><ul class="list-unstyled">';
+                        jobsHtml += '<li><i class="fas fa-upload me-1"></i>Crossing Times (Manual Upload)</li>';
+                        jobsHtml += '</ul></div></div>';
+                    }
+                    
+                    jobsHtml += '</div>';
+                    jobsList.innerHTML = jobsHtml;
+                } else if (data.running) {
+                    jobsList.innerHTML = '<p class="text-muted">No scheduled jobs found.</p>';
+                } else {
+                    jobsList.innerHTML = '<p class="text-muted">Automation is inactive. Start automation to see scheduled jobs.</p>';
                 }
             }
         })
