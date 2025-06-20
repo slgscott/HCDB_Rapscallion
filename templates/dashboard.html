@@ -724,8 +724,11 @@ function startAutomation(event) {
             
             const statusText = btn.parentElement.querySelector('p');
             if (statusText) {
+                console.log('Updating status text to running state');
                 statusText.className = 'mt-3 text-success small';
                 statusText.innerHTML = '<i class="fas fa-check-circle me-1"></i>Automation is running - data will be collected automatically';
+            } else {
+                console.error('Could not find status text element');
             }
             
             setTimeout(() => {
@@ -783,8 +786,11 @@ function stopAutomation(event) {
             
             const statusText = btn.parentElement.querySelector('p');
             if (statusText) {
+                console.log('Updating status text to stopped state');
                 statusText.className = 'mt-3 text-muted small';
                 statusText.innerHTML = '<i class="fas fa-pause-circle me-1"></i>Automation is stopped - no automatic data collection';
+            } else {
+                console.error('Could not find status text element');
             }
             
             setTimeout(() => {
