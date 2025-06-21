@@ -383,7 +383,6 @@
                                     <th>Safe Crossing 1</th>
                                     <th>Safe Crossing 2</th>
                                     <th>Status</th>
-                                    <th>Notes</th>
                                     <th>Last Updated</th>
                                 </tr>
                             </thead>
@@ -409,13 +408,6 @@
                                         <span class="badge bg-{{ 'success' if crossing.status == 'active' else 'secondary' }}">
                                             {{ crossing.status|title }}
                                         </span>
-                                    </td>
-                                    <td>
-                                        {% if crossing.notes %}
-                                            {{ crossing.notes[:50] }}{% if crossing.notes|length > 50 %}...{% endif %}
-                                        {% else %}
-                                            <span class="text-muted">None</span>
-                                        {% endif %}
                                     </td>
                                     <td>Updated: {{ format_datetime_uk(crossing.updated_at) }}</td>
                                 </tr>
