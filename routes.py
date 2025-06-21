@@ -13,6 +13,7 @@ from api_services import WeatherService, TideService, CrossingService
 from email_service import EmailService
 from logger_config import SystemLogger
 from utils import uk_timezone_now, format_datetime_uk, format_date_uk, paginate_query
+from version import get_version
 
 # Initialize services
 automation_manager = AutomationManager()
@@ -25,7 +26,7 @@ system_logger = SystemLogger()
 # Make UK timezone formatting available to all templates
 @app.context_processor
 def inject_utility_functions():
-    return dict(format_datetime_uk=format_datetime_uk, format_date_uk=format_date_uk)
+    return dict(format_datetime_uk=format_datetime_uk, format_date_uk=format_date_uk, app_version=get_version())
 
 @app.route('/')
 def index():
