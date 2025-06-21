@@ -1,0 +1,35 @@
+# Exclude attached assets directory (contains temporary/reference files)
+attached_assets/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database files (if any local ones are created)
+*.db
+*.sqlite3
+
+# Environment variables (if using .env files)
+.env
