@@ -77,10 +77,10 @@
     <!-- Main Header -->
     <nav class="navbar navbar-dark fixed-top" style="background: linear-gradient(135deg, #4a90e2, #357abd);">
         <div class="container-fluid">
-            <h1 class="navbar-brand mb-0 fs-2 text-white">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand mb-0 fs-2 text-white text-decoration-none">
                 <i class="fas fa-database me-2"></i>HCDB Rapscallion
                 <small class="fs-6 opacity-75 ms-2">v{{ app_version }}</small>
-            </h1>
+            </a>
             
             <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
                 <i class="fas fa-sign-out-alt me-1"></i>Logout
