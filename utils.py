@@ -13,10 +13,16 @@ def format_datetime_uk(dt):
         return 'Never'
     
     uk_tz = pytz.timezone('Europe/London')
+    
+    # Handle both timezone-aware and naive datetime objects
     if dt.tzinfo is None:
+        # Assume naive datetime is UTC
         dt = pytz.utc.localize(dt)
     
+    # Convert to UK timezone
     uk_dt = dt.astimezone(uk_tz)
+    
+    # Format with timezone abbreviation (GMT/BST)
     return uk_dt.strftime('%Y-%m-%d %H:%M:%S %Z')
 
 def paginate_query(query, page=1, per_page=20):
