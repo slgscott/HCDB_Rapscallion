@@ -21,25 +21,10 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "holy-island-admin-secret-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database - try multiple Railway environment variables
-database_url = (
-    os.environ.get("DATABASE_URL") or 
-    os.environ.get("POSTGRES_URL") or 
-    os.environ.get("DATABASE_PRIVATE_URL") or
-    os.environ.get("POSTGRES_PRIVATE_URL")
-)
-
-logging.info(f"Raw DATABASE_URL: {database_url}")
-logging.info(f"All DB env vars: DATABASE_URL={os.environ.get('DATABASE_URL')}, POSTGRES_URL={os.environ.get('POSTGRES_URL')}")
-
+# Configure the database
+database_url = os.environ.get("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
-    logging.info(f"Converted DATABASE_URL: {database_url}")
-
-if not database_url:
-    logging.error("No database URL found in environment variables")
-    raise ValueError("DATABASE_URL or POSTGRES_URL environment variable is required")
-
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
