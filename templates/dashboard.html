@@ -389,7 +389,7 @@
                             <tbody>
                                 {% for crossing in recent_crossings %}
                                 <tr>
-                                    <td><strong>{{ crossing.date }}</strong></td>
+                                    <td><strong>{{ format_date_uk(crossing.date) }}</strong></td>
                                     <td>
                                         {% if crossing.safe_from_1 and crossing.safe_to_1 %}
                                             <span class="badge bg-success">{{ crossing.safe_from_1 }} - {{ crossing.safe_to_1 }}</span>
@@ -444,7 +444,7 @@
                             <tbody>
                                 {% for tide in recent_tides %}
                                 <tr>
-                                    <td><strong>{{ tide.date }}</strong></td>
+                                    <td><strong>{{ format_date_uk(tide.date) }}</strong></td>
                                     <td>
                                         {% if tide.high_tide_1_time %}
                                             <div><strong>{{ tide.high_tide_1_time }}</strong></div>
@@ -512,7 +512,7 @@
                             <tbody>
                                 {% for weather in recent_weather %}
                                 <tr>
-                                    <td><strong>{{ weather.date }}</strong></td>
+                                    <td><strong>{{ format_date_uk(weather.date) }}</strong></td>
                                     <td>
                                         {% if weather.temperature_max and weather.temperature_min %}
                                             <div>

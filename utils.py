@@ -25,6 +25,25 @@ def format_datetime_uk(dt):
     # Format as DD/MM/YYYY HH:MM
     return uk_dt.strftime('%d/%m/%Y %H:%M')
 
+def format_date_uk(date_str):
+    """Convert YYYY-MM-DD date string to DD/MM/YYYY format"""
+    if not date_str:
+        return ''
+    
+    try:
+        # Handle both string dates and datetime objects
+        if isinstance(date_str, str):
+            if '/' in date_str:
+                return date_str  # Already in DD/MM/YYYY format
+            # Convert YYYY-MM-DD to DD/MM/YYYY
+            dt = datetime.strptime(date_str, '%Y-%m-%d')
+        else:
+            dt = date_str
+        
+        return dt.strftime('%d/%m/%Y')
+    except:
+        return str(date_str)
+
 def paginate_query(query, page=1, per_page=20):
     """Paginate a SQLAlchemy query"""
     page = max(1, page)
