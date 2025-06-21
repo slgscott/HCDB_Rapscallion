@@ -86,30 +86,7 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-table me-1"></i>Data
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('data_table', table_name='crossing_times') }}">Crossing Times</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('data_table', table_name='tide_data') }}">Tide Data</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('data_table', table_name='weather_data') }}">Weather Data</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logs') }}">
-                            <i class="fas fa-file-alt me-1"></i>Logs
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">
                             <i class="fas fa-sign-out-alt me-1"></i>Logout
