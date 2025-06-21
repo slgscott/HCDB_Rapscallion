@@ -417,7 +417,7 @@
                                             <span class="text-muted">None</span>
                                         {% endif %}
                                     </td>
-                                    <td>Updated: {{ crossing.updated_at.strftime('%d/%m/%Y %H:%M') if crossing.updated_at else 'Never' }}</td>
+                                    <td>Updated: {{ format_datetime_uk(crossing.updated_at) }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -485,7 +485,7 @@
                                             <span class="text-muted">N/A</span>
                                         {% endif %}
                                     </td>
-                                    <td>Updated: {{ tide.updated_at.strftime('%d/%m/%Y %H:%M') if tide.updated_at else 'Never' }}</td>
+                                    <td>Updated: {{ format_datetime_uk(tide.updated_at) }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -563,7 +563,7 @@
                                             <span class="text-muted">N/A</span>
                                         {% endif %}
                                     </td>
-                                    <td>Updated: {{ weather.updated_at.strftime('%d/%m/%Y %H:%M') if weather.updated_at else 'Never' }}</td>
+                                    <td>Updated: {{ format_datetime_uk(weather.updated_at) }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

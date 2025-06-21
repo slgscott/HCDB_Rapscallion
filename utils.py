@@ -22,8 +22,8 @@ def format_datetime_uk(dt):
     # Convert to UK timezone
     uk_dt = dt.astimezone(uk_tz)
     
-    # Format with timezone abbreviation (GMT/BST)
-    return uk_dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+    # Format as DD/MM/YYYY HH:MM
+    return uk_dt.strftime('%d/%m/%Y %H:%M')
 
 def paginate_query(query, page=1, per_page=20):
     """Paginate a SQLAlchemy query"""
