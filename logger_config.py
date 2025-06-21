@@ -11,15 +11,19 @@ class SystemLogger:
     def log(self, component, message, level='INFO', details=None):
         """Log message to both file and database"""
         try:
-            # Log to Python logging system
-            log_method = getattr(self.logger, level.lower(), self.logger.info)
-            log_method(f"[{component}] {message}")
-            
-            # Log to database with UK timezone
+            # Get UK timezone timestamp
             uk_tz = pytz.timezone('Europe/London')
             uk_time = datetime.now(uk_tz)
+            
+            # Log to Python logging system with UK time
+            uk_time_str = uk_time.strftime('%Y-%m-%d %H:%M:%S %Z')
+            log_method = getattr(self.logger, level.lower(), self.logger.info)
+            log_method(f"{uk_time_str} - [{component}] {message}")
+            
+            # Log to database with UK timezone (converted to UTC for storage)
+            utc_time = uk_time.astimezone(pytz.utc).replace(tzinfo=None)
             log_entry = SystemLog()
-            log_entry.timestamp = uk_time
+            log_entry.timestamp = utc_time
             log_entry.level = level
             log_entry.component = component
             log_entry.message = message
