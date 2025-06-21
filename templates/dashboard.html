@@ -41,71 +41,55 @@
 <div class="tab-content" id="dashboardTabsContent">
     <!-- Scripts Tab -->
     <div class="tab-pane fade show active" id="scripts" role="tabpanel">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
+        <!-- Crossing Times - Full Width at Top -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
                     <div class="card-header">
                         <i class="fas fa-road me-2"></i>Crossing Times
                     </div>
-                    <div class="card-body d-flex flex-column" style="min-height: 200px;">
-                        <div class="flex-grow-1">
-                            <!-- Date Range Selection -->
-                            <div class="mb-3">
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <label for="crossing_from_date" class="form-label text-muted small mb-1">From Date</label>
-                                        <input type="text" class="form-control form-control-sm" id="crossing_from_date" name="crossing_from_date" placeholder="DD-MM-YYYY" value="01-04-2026">
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="crossing_to_date" class="form-label text-muted small mb-1">To Date</label>
-                                        <input type="text" class="form-control form-control-sm" id="crossing_to_date" name="crossing_to_date" placeholder="DD-MM-YYYY" value="30-04-2026">
-                                    </div>
-                                </div>
-                                <div class="text-muted small mt-1">
+                    <div class="card-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-3">
+                                <label for="crossing_from_date" class="form-label text-muted small mb-1">From Date</label>
+                                <input type="text" class="form-control" id="crossing_from_date" name="crossing_from_date" placeholder="DD-MM-YYYY" value="01-04-2026">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="crossing_to_date" class="form-label text-muted small mb-1">To Date</label>
+                                <input type="text" class="form-control" id="crossing_to_date" name="crossing_to_date" placeholder="DD-MM-YYYY" value="30-04-2026">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary" onclick="runScript('crossing', true)">
+                                    <i class="fas fa-vial me-1"></i>Test Run
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary" onclick="runScript('crossing', false)">
+                                    <i class="fas fa-play me-1"></i>Execute
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div class="text-muted small">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Scraper processes one month at a time. Enter any date from the desired month to fetch that month's data.
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="d-grid gap-2 mt-auto">
-                            <button class="btn btn-outline-secondary btn-lg" onclick="runScript('crossing', true)">
-                                <i class="fas fa-vial me-1"></i>Test Run
-                            </button>
-                            <button class="btn btn-primary btn-lg" onclick="runScript('crossing', false)">
-                                <i class="fas fa-play me-1"></i>Execute
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <i class="fas fa-cloud me-2"></i>Weather Update
-                    </div>
-                    <div class="card-body d-flex flex-column" style="min-height: 200px;">
-                        <div class="flex-grow-1">
-                        </div>
-                        <div class="d-grid gap-2 mt-auto">
-                            <button class="btn btn-outline-secondary btn-lg" onclick="runScript('weather', true)">
-                                <i class="fas fa-vial me-1"></i>Test Run
-                            </button>
-                            <button class="btn btn-primary btn-lg" onclick="runScript('weather', false)">
-                                <i class="fas fa-play me-1"></i>Execute
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-3">
+        </div>
+        
+        <!-- Weather and Tide Cards Below -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
                 <div class="card h-100">
                     <div class="card-header">
                         <i class="fas fa-water me-2"></i>Tide Data Update
                     </div>
-                    <div class="card-body d-flex flex-column" style="min-height: 200px;">
+                    <div class="card-body d-flex flex-column" style="min-height: 150px;">
                         <div class="flex-grow-1">
                         </div>
                         <div class="d-grid gap-2 mt-auto">
@@ -113,6 +97,26 @@
                                 <i class="fas fa-vial me-1"></i>Test Run
                             </button>
                             <button class="btn btn-primary btn-lg" onclick="runScript('tides', false)">
+                                <i class="fas fa-play me-1"></i>Execute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-cloud me-2"></i>Weather Update
+                    </div>
+                    <div class="card-body d-flex flex-column" style="min-height: 150px;">
+                        <div class="flex-grow-1">
+                        </div>
+                        <div class="d-grid gap-2 mt-auto">
+                            <button class="btn btn-outline-secondary btn-lg" onclick="runScript('weather', true)">
+                                <i class="fas fa-vial me-1"></i>Test Run
+                            </button>
+                            <button class="btn btn-primary btn-lg" onclick="runScript('weather', false)">
                                 <i class="fas fa-play me-1"></i>Execute
                             </button>
                         </div>
