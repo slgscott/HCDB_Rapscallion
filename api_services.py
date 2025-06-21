@@ -111,6 +111,8 @@ class WeatherService:
                         daily_record.humidity = int(humidity[i]) if i < len(humidity) and humidity[i] else None
                         daily_record.wind_speed = int(wind_speeds[i]) if i < len(wind_speeds) and wind_speeds[i] else None
                         daily_record.wind_direction = self._degrees_to_direction(wind_directions[i]) if i < len(wind_directions) and wind_directions[i] else None
+                        # Explicitly update timestamp
+                        daily_record.updated_at = datetime.utcnow()
                 
                 db.session.commit()
             else:
@@ -297,6 +299,9 @@ class TideService:
                     if len(low_tides) >= 2:
                         tide_record.low_tide_2_time = low_tides[1]['time']
                         tide_record.low_tide_2_height = low_tides[1]['height']
+                    
+                    # Explicitly update the timestamp
+                    tide_record.updated_at = datetime.utcnow()
                 
                 db.session.commit()
                 
