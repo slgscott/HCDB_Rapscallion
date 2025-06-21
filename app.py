@@ -23,8 +23,13 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
 database_url = os.environ.get("DATABASE_URL")
+logging.info(f"Raw DATABASE_URL: {database_url}")
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+    logging.info(f"Converted DATABASE_URL: {database_url}")
+if not database_url:
+    logging.error("DATABASE_URL environment variable is missing or empty")
+    raise ValueError("DATABASE_URL environment variable is required")
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
