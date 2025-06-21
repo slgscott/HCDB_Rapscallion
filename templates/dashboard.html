@@ -49,12 +49,6 @@
                     </div>
                     <div class="card-body d-flex flex-column" style="min-height: 200px;">
                         <div class="flex-grow-1">
-                            <p class="card-text">
-                                <strong>Status:</strong> 
-                                <span class="badge bg-{{ 'success' if script_status.weather.status == 'active' else 'secondary' }}">
-                                    {{ script_status.weather.status|title }}
-                                </span>
-                            </p>
                         </div>
                         <div class="d-grid gap-2 mt-auto">
                             <button class="btn btn-outline-secondary btn-lg" onclick="runScript('weather', true)">
@@ -75,12 +69,6 @@
                     </div>
                     <div class="card-body d-flex flex-column" style="min-height: 200px;">
                         <div class="flex-grow-1">
-                            <p class="card-text">
-                                <strong>Status:</strong> 
-                                <span class="badge bg-{{ 'success' if script_status.tide.status == 'active' else 'secondary' }}">
-                                    {{ script_status.tide.status|title }}
-                                </span>
-                            </p>
                         </div>
                         <div class="d-grid gap-2 mt-auto">
                             <button class="btn btn-outline-secondary btn-lg" onclick="runScript('tides', true)">
