@@ -78,10 +78,10 @@ def dashboard():
     tide_count = TideData.query.count()
     weather_count = WeatherData.query.count()
     
-    # Get recent data for View Data tab
-    recent_crossings = CrossingTimes.query.order_by(desc(CrossingTimes.date)).limit(15).all()
-    recent_tides = TideData.query.order_by(desc(TideData.date)).limit(15).all()
-    recent_weather = WeatherData.query.order_by(desc(WeatherData.date)).limit(15).all()
+    # Get recent data for View Data tab (newest first)
+    recent_crossings = CrossingTimes.query.order_by(desc(CrossingTimes.updated_at), desc(CrossingTimes.date)).limit(15).all()
+    recent_tides = TideData.query.order_by(desc(TideData.updated_at), desc(TideData.date)).limit(15).all()
+    recent_weather = WeatherData.query.order_by(desc(WeatherData.updated_at), desc(WeatherData.date)).limit(15).all()
     
     # Get last updated timestamps for each table
     last_crossing_update = db.session.query(func.max(CrossingTimes.updated_at)).scalar()
