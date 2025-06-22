@@ -1,8 +1,11 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311", "python311Packages.pip", "python311Packages.setuptools"]
 
 [phases.install]
-cmds = ["pip install -e ."]
+cmds = [
+  "pip install --upgrade pip",
+  "pip install email-validator flask-dance flask flask-sqlalchemy gunicorn psycopg2-binary flask-login oauthlib pyjwt apscheduler pytz requests beautifulsoup4 sqlalchemy werkzeug"
+]
 
 [start]
-cmd = "python main.py"
+cmd = "gunicorn --bind 0.0.0.0:$PORT --workers 1 main:app"
