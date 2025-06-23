@@ -360,8 +360,19 @@
         <!-- Crossing Times Table -->
         <div id="crossing-data" class="data-table">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-road me-2"></i>Holy Island Crossing Times</h5>
+                    <div class="d-flex align-items-center">
+                        <small class="text-muted me-3">
+                            Page <span id="crossing-current-page">1</span> of <span id="crossing-total-pages">{{ (crossing_count / 20) | round(0, 'ceil') | int }}</span>
+                        </small>
+                        <button class="btn btn-outline-light btn-sm me-1" id="crossing-prev-btn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline-light btn-sm" id="crossing-next-btn" onclick="loadPage('crossing', 2)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -404,22 +415,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Controls -->
-                    <div id="crossing-pagination" class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <small class="text-muted">
-                                Page <span id="crossing-current-page">1</span> of <span id="crossing-total-pages">{{ (crossing_count / 20) | round(0, 'ceil') | int }}</span>
-                                (<span id="crossing-total-records">{{ crossing_count }}</span> total records)
-                            </small>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline-secondary btn-sm" id="crossing-prev-btn" onclick="loadPage('crossing', currentPage.crossing - 1)" disabled>
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm ms-2" id="crossing-next-btn" onclick="loadPage('crossing', currentPage.crossing + 1)">
-                                Next <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <span id="crossing-total-records">{{ crossing_count }}</span> total records
+                        </small>
                     </div>
                 </div>
             </div>
@@ -428,8 +427,19 @@
         <!-- Tide Data Table -->
         <div id="tide-data" class="data-table" style="display: none;">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-water me-2"></i>Holy Island Tide Data</h5>
+                    <div class="d-flex align-items-center">
+                        <small class="text-muted me-3">
+                            Page <span id="tide-current-page">1</span> of <span id="tide-total-pages">{{ (tide_count / 20) | round(0, 'ceil') | int }}</span>
+                        </small>
+                        <button class="btn btn-outline-light btn-sm me-1" id="tide-prev-btn" onclick="loadPage('tide', 1)" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline-light btn-sm" id="tide-next-btn" onclick="loadPage('tide', 2)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -486,22 +496,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Controls -->
-                    <div id="tide-pagination" class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <small class="text-muted">
-                                Page <span id="tide-current-page">1</span> of <span id="tide-total-pages">{{ (tide_count / 20) | round(0, 'ceil') | int }}</span>
-                                (<span id="tide-total-records">{{ tide_count }}</span> total records)
-                            </small>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline-secondary btn-sm" id="tide-prev-btn" onclick="loadPage('tide', currentPage.tide - 1)" disabled>
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm ms-2" id="tide-next-btn" onclick="loadPage('tide', currentPage.tide + 1)">
-                                Next <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <span id="tide-total-records">{{ tide_count }}</span> total records
+                        </small>
                     </div>
                 </div>
             </div>
@@ -510,8 +508,19 @@
         <!-- Weather Data Table -->
         <div id="weather-data" class="data-table" style="display: none;">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>Holy Island Weather Data</h5>
+                    <div class="d-flex align-items-center">
+                        <small class="text-muted me-3">
+                            Page <span id="weather-current-page">1</span> of <span id="weather-total-pages">{{ (weather_count / 20) | round(0, 'ceil') | int }}</span>
+                        </small>
+                        <button class="btn btn-outline-light btn-sm me-1" id="weather-prev-btn" onclick="loadPage('weather', 1)" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline-light btn-sm" id="weather-next-btn" onclick="loadPage('weather', 2)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -578,22 +587,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Controls -->
-                    <div id="weather-pagination" class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <small class="text-muted">
-                                Page <span id="weather-current-page">1</span> of <span id="weather-total-pages">{{ (weather_count / 20) | round(0, 'ceil') | int }}</span>
-                                (<span id="weather-total-records">{{ weather_count }}</span> total records)
-                            </small>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline-secondary btn-sm" id="weather-prev-btn" onclick="loadPage('weather', currentPage.weather - 1)" disabled>
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm ms-2" id="weather-next-btn" onclick="loadPage('weather', currentPage.weather + 1)">
-                                Next <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <span id="weather-total-records">{{ weather_count }}</span> total records
+                        </small>
                     </div>
                 </div>
             </div>
