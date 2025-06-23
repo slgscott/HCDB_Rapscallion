@@ -79,7 +79,7 @@
         <div class="container-fluid">
             <a href="{{ url_for('dashboard') }}" class="navbar-brand mb-0 fs-2 text-white text-decoration-none">
                 <i class="fas fa-database me-2"></i>HCDB Rapscallion
-                <small class="fs-6 opacity-75 ms-2">v{{ app_version }}</small>
+                <small class="fs-6 opacity-75 ms-2">v{{ get_version() }}</small>
             </a>
             
             <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
