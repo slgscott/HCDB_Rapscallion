@@ -1039,5 +1039,139 @@ window.getCrossingDates = getCrossingDates;
 document.addEventListener('DOMContentLoaded', function() {
     updateScheduledJobsDisplay();
 });
+
+// Pagination functionality
+let currentPage = {
+    crossing: 1,
+    tide: 1,
+    weather: 1
+};
+
+function loadPage(dataType, page) {
+    if (page < 1) return;
+    
+    currentPage[dataType] = page;
+    
+    // Show loading state
+    const tableBody = document.getElementById(`${dataType}-table-body`);
+    if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="100%" class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+    }
+    
+    fetch(`/api/data/${dataType}?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            updateTable(dataType, data);
+            updatePaginationControls(dataType, data.pagination);
+        })
+        .catch(error => {
+            console.error('Error loading page:', error);
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger">Error loading data</td></tr>';
+            }
+        });
+}
+
+function updateTable(dataType, response) {
+    const tableBody = document.getElementById(`${dataType}-table-body`);
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    response.data.forEach(item => {
+        const row = createTableRow(dataType, item);
+        tableBody.appendChild(row);
+    });
+}
+
+function createTableRow(dataType, item) {
+    const row = document.createElement('tr');
+    
+    if (dataType === 'crossing') {
+        row.innerHTML = `
+            <td><strong>${item.date}</strong></td>
+            <td>
+                ${item.safe_from_1 && item.safe_to_1 ? 
+                    `<span class="badge bg-success">${item.safe_from_1} - ${item.safe_to_1}</span>` : 
+                    '<span class="text-muted">Not available</span>'}
+            </td>
+            <td>
+                ${item.safe_from_2 && item.safe_to_2 ? 
+                    `<span class="badge bg-success">${item.safe_from_2} - ${item.safe_to_2}</span>` : 
+                    '<span class="text-muted">Not available</span>'}
+            </td>
+            <td><span class="badge bg-success">Active</span></td>
+            <td>${item.updated_at}</td>
+        `;
+    } else if (dataType === 'tide') {
+        row.innerHTML = `
+            <td><strong>${item.date}</strong></td>
+            <td>
+                ${item.high_tide_1_time ? 
+                    `<div><strong>${item.high_tide_1_time}</strong></div>${item.high_tide_1_height ? `<small class="text-info">${item.high_tide_1_height}m</small>` : ''}` : 
+                    '<span class="text-muted">N/A</span>'}
+            </td>
+            <td>
+                ${item.low_tide_1_time ? 
+                    `<div><strong>${item.low_tide_1_time}</strong></div>${item.low_tide_1_height ? `<small class="text-warning">${item.low_tide_1_height}m</small>` : ''}` : 
+                    '<span class="text-muted">N/A</span>'}
+            </td>
+            <td>
+                ${item.high_tide_2_time ? 
+                    `<div><strong>${item.high_tide_2_time}</strong></div>${item.high_tide_2_height ? `<small class="text-info">${item.high_tide_2_height}m</small>` : ''}` : 
+                    '<span class="text-muted">N/A</span>'}
+            </td>
+            <td>
+                ${item.low_tide_2_time ? 
+                    `<div><strong>${item.low_tide_2_time}</strong></div>${item.low_tide_2_height ? `<small class="text-warning">${item.low_tide_2_height}m</small>` : ''}` : 
+                    '<span class="text-muted">N/A</span>'}
+            </td>
+            <td>${item.updated_at}</td>
+        `;
+    } else if (dataType === 'weather') {
+        row.innerHTML = `
+            <td><strong>${item.date}</strong></td>
+            <td>
+                ${item.temperature ? `<span class="badge bg-info">${item.temperature}°C</span>` : '<span class="text-muted">N/A</span>'}
+            </td>
+            <td><span class="text-muted">-</span></td>
+            <td>
+                ${item.wind_speed ? `<div><strong>${item.wind_speed} km/h</strong></div>` : ''}
+                ${item.wind_direction ? `<small class="text-muted">${item.wind_direction}</small>` : ''}
+            </td>
+            <td>
+                ${item.condition ? `<span class="badge bg-secondary">${item.condition}</span>` : '<span class="text-muted">N/A</span>'}
+            </td>
+            <td>${item.updated_at}</td>
+        `;
+    }
+    
+    return row;
+}
+
+function updatePaginationControls(dataType, pagination) {
+    // Update page info
+    document.getElementById(`${dataType}-current-page`).textContent = pagination.page;
+    document.getElementById(`${dataType}-total-pages`).textContent = pagination.pages;
+    document.getElementById(`${dataType}-total-records`).textContent = pagination.total;
+    
+    // Update buttons
+    const prevBtn = document.getElementById(`${dataType}-prev-btn`);
+    const nextBtn = document.getElementById(`${dataType}-next-btn`);
+    
+    if (prevBtn) {
+        prevBtn.disabled = !pagination.has_prev;
+        if (pagination.has_prev) {
+            prevBtn.onclick = () => loadPage(dataType, pagination.prev_num);
+        }
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = !pagination.has_next;
+        if (pagination.has_next) {
+            nextBtn.onclick = () => loadPage(dataType, pagination.next_num);
+        }
+    }
+}
 </script>
 {% endblock %}
