@@ -2,7 +2,7 @@
 <table class="table table-sm table-striped table-hover">
     <thead>
         <tr>
-            <th style="width: 160px;">Time (BST)</th>
+            <th style="width: 160px;">Time (UTC)</th>
             <th style="width: 80px;">Level</th>
             <th style="width: 120px;">Component</th>
             <th>Message</th>
@@ -12,7 +12,7 @@
         {% for log in logs %}
         <tr class="log-{{ log.level.lower() }}">
             <td class="text-nowrap">
-                <small>{{ log.timestamp.strftime('%d/%m/%Y %H:%M:%S') }}</small>
+                <small>{{ log.timestamp.strftime('%d/%m/%Y %H:%M:%S') }} UTC</small>
             </td>
             <td>
                 <span class="badge bg-{{ 'danger' if log.level == 'ERROR' else 'warning' if log.level == 'WARNING' else 'info' if log.level == 'INFO' else 'secondary' }}">
