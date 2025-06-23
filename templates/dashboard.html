@@ -369,7 +369,8 @@
                         <button class="btn btn-outline-light btn-sm me-1" id="crossing-prev-btn" disabled>
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button class="btn btn-outline-light btn-sm" id="crossing-next-btn" onclick="loadPage('crossing', 2)">
+                        <button class="btn btn-outline-light btn-sm" id="crossing-next-btn" 
+                                {% if (crossing_count / 20) | round(0, 'ceil') | int <= 1 %}disabled{% else %}onclick="loadPage('crossing', 2)"{% endif %}>
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -433,10 +434,11 @@
                         <small class="text-muted me-3">
                             Page <span id="tide-current-page">1</span> of <span id="tide-total-pages">{{ (tide_count / 20) | round(0, 'ceil') | int }}</span>
                         </small>
-                        <button class="btn btn-outline-light btn-sm me-1" id="tide-prev-btn" onclick="loadPage('tide', 1)" disabled>
+                        <button class="btn btn-outline-light btn-sm me-1" id="tide-prev-btn" disabled>
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button class="btn btn-outline-light btn-sm" id="tide-next-btn" onclick="loadPage('tide', 2)">
+                        <button class="btn btn-outline-light btn-sm" id="tide-next-btn" 
+                                {% if (tide_count / 20) | round(0, 'ceil') | int <= 1 %}disabled{% else %}onclick="loadPage('tide', 2)"{% endif %}>
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -514,10 +516,11 @@
                         <small class="text-muted me-3">
                             Page <span id="weather-current-page">1</span> of <span id="weather-total-pages">{{ (weather_count / 20) | round(0, 'ceil') | int }}</span>
                         </small>
-                        <button class="btn btn-outline-light btn-sm me-1" id="weather-prev-btn" onclick="loadPage('weather', 1)" disabled>
+                        <button class="btn btn-outline-light btn-sm me-1" id="weather-prev-btn" disabled>
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button class="btn btn-outline-light btn-sm" id="weather-next-btn" onclick="loadPage('weather', 2)">
+                        <button class="btn btn-outline-light btn-sm" id="weather-next-btn" 
+                                {% if (weather_count / 20) | round(0, 'ceil') | int <= 1 %}disabled{% else %}onclick="loadPage('weather', 2)"{% endif %}>
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -1147,6 +1150,7 @@ function updatePaginationControls(dataType, pagination) {
     
     if (prevBtn) {
         prevBtn.disabled = !pagination.has_prev;
+        prevBtn.onclick = null; // Clear existing onclick
         if (pagination.has_prev) {
             prevBtn.onclick = () => loadPage(dataType, pagination.prev_num);
         }
@@ -1154,6 +1158,7 @@ function updatePaginationControls(dataType, pagination) {
     
     if (nextBtn) {
         nextBtn.disabled = !pagination.has_next;
+        nextBtn.onclick = null; // Clear existing onclick
         if (pagination.has_next) {
             nextBtn.onclick = () => loadPage(dataType, pagination.next_num);
         }
