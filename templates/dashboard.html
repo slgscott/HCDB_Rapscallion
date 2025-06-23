@@ -375,7 +375,7 @@
                                     <th>Last Updated</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="crossing-table-body">
                                 {% for crossing in recent_crossings %}
                                 <tr>
                                     <td><strong>{{ format_date_uk(crossing.date) }}</strong></td>
@@ -486,8 +486,22 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">Tide data displayed above</small>
+                    <!-- Pagination Controls -->
+                    <div id="tide-pagination" class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <small class="text-muted">
+                                Page <span id="tide-current-page">1</span> of <span id="tide-total-pages">{{ (tide_count / 20) | round(0, 'ceil') | int }}</span>
+                                (<span id="tide-total-records">{{ tide_count }}</span> total records)
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm" id="tide-prev-btn" onclick="loadPage('tide', currentPage.tide - 1)" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ms-2" id="tide-next-btn" onclick="loadPage('tide', currentPage.tide + 1)">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -512,7 +526,7 @@
                                     <th>Last Updated</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="weather-table-body">
                                 {% for weather in recent_weather %}
                                 <tr>
                                     <td><strong>{{ format_date_uk(weather.date) }}</strong></td>
@@ -563,6 +577,23 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination Controls -->
+                    <div id="weather-pagination" class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <small class="text-muted">
+                                Page <span id="weather-current-page">1</span> of <span id="weather-total-pages">{{ (weather_count / 20) | round(0, 'ceil') | int }}</span>
+                                (<span id="weather-total-records">{{ weather_count }}</span> total records)
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm" id="weather-prev-btn" onclick="loadPage('weather', currentPage.weather - 1)" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ms-2" id="weather-next-btn" onclick="loadPage('weather', currentPage.weather + 1)">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
