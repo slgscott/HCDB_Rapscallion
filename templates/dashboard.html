@@ -274,7 +274,7 @@
                                         {% for log in recent_logs %}
                                             <tr>
                                                 <td>
-                                                    <small>{{ log.formatted_timestamp }}</small>
+                                                    <small>{{ log.timestamp|uk_time }}</small>
                                                 </td>
                                                 <td>
                                                     <span class="badge 
