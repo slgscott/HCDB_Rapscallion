@@ -56,6 +56,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Initialize the app with the extension
 db.init_app(app)
 
+# Register template filter
+from utils import format_datetime_uk
+
+@app.template_filter('uk_time')
+def uk_time_filter(timestamp):
+    return format_datetime_uk(timestamp)
+
 with app.app_context():
     # Import models to ensure tables are created
     import models  # noqa: F401

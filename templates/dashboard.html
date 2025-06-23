@@ -274,7 +274,7 @@
                                         {% for log in recent_logs %}
                                             <tr>
                                                 <td>
-                                                    <small>{{ log.timestamp|uk_time }}</small>
+                                                    <small>{{ (log.timestamp + timedelta(hours=1)).strftime('%d/%m/%Y %H:%M') }} BST</small>
                                                 </td>
                                                 <td>
                                                     <span class="badge 
