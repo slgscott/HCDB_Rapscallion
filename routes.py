@@ -76,6 +76,9 @@ def dashboard():
     
     # Get recent logs
     recent_logs = SystemLog.query.order_by(desc(SystemLog.timestamp)).limit(10).all()
+    # Format timestamps for display
+    for log in recent_logs:
+        log.formatted_timestamp = format_datetime_uk(log.timestamp)
     
     # Get data counts
     crossing_count = CrossingTimes.query.count()
@@ -132,6 +135,10 @@ def logs():
     
     pagination = query.paginate(page=page, per_page=50, error_out=False)
     logs = pagination.items
+    
+    # Format timestamps in Python to avoid template issues
+    for log in logs:
+        log.formatted_timestamp = format_datetime_uk(log.timestamp)
     
     # Get available levels and components for filters
     levels = db.session.query(SystemLog.level).distinct().all()
