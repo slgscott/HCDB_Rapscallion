@@ -32,11 +32,6 @@ crossing_service = CrossingService()
 email_service = EmailService()
 system_logger = SystemLogger()
 
-# Make UK timezone formatting available to all templates
-app.jinja_env.globals['format_datetime_uk'] = format_datetime_uk
-app.jinja_env.globals['format_date_uk'] = format_date_uk
-app.jinja_env.globals['get_version'] = get_version
-
 @app.context_processor
 def inject_utility_functions():
     return dict(
@@ -44,6 +39,14 @@ def inject_utility_functions():
         format_date_uk=format_date_uk, 
         get_version=get_version
     )
+
+# Make UK timezone formatting available to all templates
+with app.app_context():
+    app.jinja_env.globals.update({
+        'format_datetime_uk': format_datetime_uk,
+        'format_date_uk': format_date_uk,
+        'get_version': get_version
+    })
 
 @app.route('/')
 def index():
