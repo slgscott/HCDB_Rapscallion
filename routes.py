@@ -35,7 +35,11 @@ system_logger = SystemLogger()
 # Make UK timezone formatting available to all templates
 @app.context_processor
 def inject_utility_functions():
-    return dict(format_datetime_uk=format_datetime_uk, format_date_uk=format_date_uk, app_version=get_version())
+    return dict(
+        format_datetime_uk=format_datetime_uk, 
+        format_date_uk=format_date_uk, 
+        get_version=get_version
+    )
 
 @app.route('/')
 def index():
