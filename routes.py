@@ -29,8 +29,7 @@ app.jinja_env.globals['format_date_uk'] = format_date_uk
 
 @app.context_processor
 def inject_utility_functions():
-    from datetime import timedelta
-    return dict(get_version=get_version, timedelta=timedelta)
+    return dict(get_version=get_version)
 
 @app.route('/')
 def index():
