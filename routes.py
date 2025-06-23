@@ -15,6 +15,15 @@ from logger_config import SystemLogger
 from utils import uk_timezone_now, format_datetime_uk, format_date_uk, paginate_query
 from version import get_version
 
+# Register template functions
+@app.template_global()
+def format_datetime_uk_filter(dt):
+    return format_datetime_uk(dt)
+
+@app.template_global()
+def format_date_uk_filter(date_str):
+    return format_date_uk(date_str)
+
 # Initialize services
 automation_manager = AutomationManager()
 weather_service = WeatherService()
