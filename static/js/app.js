@@ -104,7 +104,6 @@ function showAlert(type, message, permanent = false) {
     const container = document.querySelector('main .container-fluid');
     if (container) {
         container.insertAdjacentHTML('afterbegin', alertHtml);
-    }
         
         // Auto-dismiss after 5 seconds if not permanent
         if (!permanent) {
