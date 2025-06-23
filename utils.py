@@ -22,8 +22,8 @@ def format_datetime_uk(dt):
     # Convert to UK timezone
     uk_dt = dt.astimezone(uk_tz)
     
-    # Format as DD/MM/YYYY HH:MM with timezone indicator
-    return uk_dt.strftime('%d/%m/%Y %H:%M %Z')
+    # Format as DD/MM/YYYY HH:MM (timezone indicated in column header)
+    return uk_dt.strftime('%d/%m/%Y %H:%M')
 
 def format_date_uk(date_str):
     """Convert YYYY-MM-DD date string to DD/MM/YYYY format"""
