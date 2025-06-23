@@ -988,7 +988,9 @@ function showAlert(type, message) {
     `;
     
     const container = document.querySelector('main .container-fluid');
-    container.insertAdjacentHTML('afterbegin', alertHtml);
+    if (container) {
+        container.insertAdjacentHTML('afterbegin', alertHtml);
+    }
 }
 
 // Handle form data for API submission  
