@@ -79,10 +79,10 @@ def dashboard():
     tide_count = TideData.query.count()
     weather_count = WeatherData.query.count()
     
-    # Get recent data for View Data tab (newest first)
-    recent_crossings = CrossingTimes.query.order_by(desc(CrossingTimes.updated_at), desc(CrossingTimes.date)).limit(15).all()
-    recent_tides = TideData.query.order_by(desc(TideData.updated_at), desc(TideData.date)).limit(15).all()
-    recent_weather = WeatherData.query.order_by(desc(WeatherData.updated_at), desc(WeatherData.date)).limit(15).all()
+    # Get recent data for View Data tab (newest first) - show first page
+    recent_crossings = CrossingTimes.query.order_by(desc(CrossingTimes.updated_at), desc(CrossingTimes.date)).limit(20).all()
+    recent_tides = TideData.query.order_by(desc(TideData.updated_at), desc(TideData.date)).limit(20).all()
+    recent_weather = WeatherData.query.order_by(desc(WeatherData.updated_at), desc(WeatherData.date)).limit(20).all()
     
     # Get last updated timestamps for each table
     last_crossing_update = db.session.query(func.max(CrossingTimes.updated_at)).scalar()
@@ -101,7 +101,9 @@ def dashboard():
                          recent_weather=recent_weather,
                          last_crossing_update=last_crossing_update,
                          last_tide_update=last_tide_update,
-                         last_weather_update=last_weather_update)
+                         last_weather_update=last_weather_update,
+                         page=1,
+                         per_page=20)
 
 @app.route('/logs')
 @login_required
@@ -213,6 +215,82 @@ def test_email():
     except Exception as e:
         system_logger.log('EMAIL', f'Error sending test email: {str(e)}', level='ERROR')
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# Pagination API routes for View Data tab
+@app.route('/api/data/<data_type>')
+@login_required
+def get_paginated_data(data_type):
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    if data_type == 'crossing':
+        query = CrossingTimes.query.order_by(desc(CrossingTimes.updated_at), desc(CrossingTimes.date))
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        data = pagination.items
+        template_data = [{
+            'id': item.id,
+            'date': format_date_uk(item.date),
+            'safe_from_1': item.safe_from_1,
+            'safe_to_1': item.safe_to_1,
+            'safe_from_2': item.safe_from_2,
+            'safe_to_2': item.safe_to_2,
+            'unsafe_from_1': item.unsafe_from_1,
+            'unsafe_to_1': item.unsafe_to_1,
+            'unsafe_from_2': item.unsafe_from_2,
+            'unsafe_to_2': item.unsafe_to_2,
+            'updated_at': format_datetime_uk(item.updated_at)
+        } for item in data]
+        
+    elif data_type == 'tide':
+        query = TideData.query.order_by(desc(TideData.updated_at), desc(TideData.date))
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        data = pagination.items
+        template_data = [{
+            'id': item.id,
+            'date': format_date_uk(item.date),
+            'high_tide_1_time': item.high_tide_1_time,
+            'high_tide_1_height': item.high_tide_1_height,
+            'low_tide_1_time': item.low_tide_1_time,
+            'low_tide_1_height': item.low_tide_1_height,
+            'high_tide_2_time': item.high_tide_2_time,
+            'high_tide_2_height': item.high_tide_2_height,
+            'low_tide_2_time': item.low_tide_2_time,
+            'low_tide_2_height': item.low_tide_2_height,
+            'updated_at': format_datetime_uk(item.updated_at)
+        } for item in data]
+        
+    elif data_type == 'weather':
+        query = WeatherData.query.order_by(desc(WeatherData.updated_at), desc(WeatherData.date))
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        data = pagination.items
+        template_data = [{
+            'id': item.id,
+            'date': format_date_uk(item.date),
+            'temperature': item.temperature,
+            'condition': item.condition,
+            'description': item.description,
+            'wind_speed': item.wind_speed,
+            'wind_direction': item.wind_direction,
+            'humidity': item.humidity,
+            'updated_at': format_datetime_uk(item.updated_at)
+        } for item in data]
+        
+    else:
+        return jsonify({'error': 'Invalid data type'}), 400
+    
+    return jsonify({
+        'data': template_data,
+        'pagination': {
+            'page': pagination.page,
+            'pages': pagination.pages,
+            'per_page': pagination.per_page,
+            'total': pagination.total,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+            'prev_num': pagination.prev_num,
+            'next_num': pagination.next_num
+        }
+    })
 
 # Export functionality integrated into dashboard View Data tabs
 

@@ -404,8 +404,22 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">Crossing times data displayed above</small>
+                    <!-- Pagination Controls -->
+                    <div id="crossing-pagination" class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <small class="text-muted">
+                                Page <span id="crossing-current-page">1</span> of <span id="crossing-total-pages">{{ (crossing_count / 20) | round(0, 'ceil') | int }}</span>
+                                (<span id="crossing-total-records">{{ crossing_count }}</span> total records)
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm" id="crossing-prev-btn" onclick="loadPage('crossing', currentPage.crossing - 1)" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ms-2" id="crossing-next-btn" onclick="loadPage('crossing', currentPage.crossing + 1)">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -430,7 +444,7 @@
                                     <th>Last Updated</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="tide-table-body">
                                 {% for tide in recent_tides %}
                                 <tr>
                                     <td><strong>{{ format_date_uk(tide.date) }}</strong></td>
