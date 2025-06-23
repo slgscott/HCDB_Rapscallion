@@ -12,7 +12,7 @@
         {% for log in logs %}
         <tr class="log-{{ log.level.lower() }}">
             <td class="text-nowrap">
-                <small>{{ (log.timestamp + timedelta(hours=1)).strftime('%d/%m/%Y %H:%M:%S') }} BST</small>
+                <small>{{ format_datetime_uk(log.timestamp) }}</small>
             </td>
             <td>
                 <span class="badge bg-{{ 'danger' if log.level == 'ERROR' else 'warning' if log.level == 'WARNING' else 'info' if log.level == 'INFO' else 'secondary' }}">
