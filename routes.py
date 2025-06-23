@@ -35,18 +35,10 @@ system_logger = SystemLogger()
 @app.context_processor
 def inject_utility_functions():
     return dict(
-        format_datetime_uk=format_datetime_uk, 
-        format_date_uk=format_date_uk, 
+        format_datetime_uk=format_datetime_uk,
+        format_date_uk=format_date_uk,
         get_version=get_version
     )
-
-# Make UK timezone formatting available to all templates
-with app.app_context():
-    app.jinja_env.globals.update({
-        'format_datetime_uk': format_datetime_uk,
-        'format_date_uk': format_date_uk,
-        'get_version': get_version
-    })
 
 @app.route('/')
 def index():
