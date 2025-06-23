@@ -266,12 +266,12 @@ def get_paginated_data(data_type):
         template_data = [{
             'id': item.id,
             'date': format_date_uk(item.date),
+            'temperature_min': item.temperature_min,
+            'temperature_max': item.temperature_max,
             'temperature': item.temperature,
-            'condition': item.condition,
-            'description': item.description,
+            'precipitation_sum': item.precipitation_sum,
             'wind_speed': item.wind_speed,
-            'wind_direction': item.wind_direction,
-            'humidity': item.humidity,
+            'wind_speed_max': item.wind_speed_max,
             'updated_at': format_datetime_uk(item.updated_at)
         } for item in data]
         
