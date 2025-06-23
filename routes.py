@@ -16,11 +16,11 @@ from utils import uk_timezone_now, format_datetime_uk, format_date_uk, paginate_
 from version import get_version
 
 # Register template functions
-@app.template_global()
+@app.template_global('format_datetime_uk')
 def format_datetime_uk_filter(dt):
     return format_datetime_uk(dt)
 
-@app.template_global()
+@app.template_global('format_date_uk')
 def format_date_uk_filter(date_str):
     return format_date_uk(date_str)
 
@@ -34,11 +34,7 @@ system_logger = SystemLogger()
 
 @app.context_processor
 def inject_utility_functions():
-    return dict(
-        format_datetime_uk=format_datetime_uk,
-        format_date_uk=format_date_uk,
-        get_version=get_version
-    )
+    return dict(get_version=get_version)
 
 @app.route('/')
 def index():
