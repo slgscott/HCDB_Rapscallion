@@ -15,15 +15,6 @@ from logger_config import SystemLogger
 from utils import uk_timezone_now, format_datetime_uk, format_date_uk, paginate_query
 from version import get_version
 
-# Register template functions
-@app.template_global('format_datetime_uk')
-def format_datetime_uk_filter(dt):
-    return format_datetime_uk(dt)
-
-@app.template_global('format_date_uk')
-def format_date_uk_filter(date_str):
-    return format_date_uk(date_str)
-
 # Initialize services
 automation_manager = AutomationManager()
 weather_service = WeatherService()
@@ -31,6 +22,10 @@ tide_service = TideService()
 crossing_service = CrossingService()
 email_service = EmailService()
 system_logger = SystemLogger()
+
+# Add template functions directly to Jinja environment
+app.jinja_env.globals['format_datetime_uk'] = format_datetime_uk
+app.jinja_env.globals['format_date_uk'] = format_date_uk
 
 @app.context_processor
 def inject_utility_functions():
