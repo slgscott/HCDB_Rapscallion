@@ -37,8 +37,8 @@ def parse_database_url(database_url):
     try:
         parsed = urlparse(database_url)
         
-        # Mask password for display
-        masked_password = parsed.password[:8] + '****' if parsed.password and len(parsed.password) > 8 else '****'
+        # Show full password (no masking for migration purposes)
+        full_password = parsed.password or 'Not set'
         
         # Determine environment
         environment = 'Development (Neon)' if 'neon' in parsed.hostname else 'Production (Railway)'
@@ -52,7 +52,7 @@ def parse_database_url(database_url):
             'template': 'postgresql://${{PGUSER}}:${{PGPASSWORD}}@${{PGHOST}}:${{PGPORT}}/${{PGDATABASE}}',
             'components': {
                 'PGUSER': parsed.username or 'Not set',
-                'PGPASSWORD': masked_password,
+                'PGPASSWORD': full_password,
                 'PGHOST': parsed.hostname or 'Not set',
                 'PGPORT': str(parsed.port) if parsed.port else '5432',
                 'PGDATABASE': parsed.path.lstrip('/') if parsed.path else 'Not set'
