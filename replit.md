@@ -100,6 +100,7 @@ The application supports multiple deployment environments:
 
 ## Changelog
 
+- June 24, 2025. v1.0.11 - Added DATABASE_PUBLIC_URL support to Database Info panel
 - June 24, 2025. v1.0.10 - Improved System Logs page navigation structure
   - Streamlined logs page navigation by removing redundant dashboard logs tab
   - Added consistent main navigation bar to logs page with Upload Data, Automation, Logs, Admin, View Data
