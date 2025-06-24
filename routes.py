@@ -24,13 +24,20 @@ crossing_service = CrossingService()
 email_service = EmailService()
 system_logger = SystemLogger()
 
-def parse_database_url(database_url):
+def parse_database_url(database_url, is_public_url=False):
     """Parse database URL and return connection components"""
     if not database_url:
+        template = 'DATABASE_PUBLIC_URL not set' if is_public_url else 'DATABASE_URL not set'
         return {
-            'full_url': 'Not configured',
-            'template': 'DATABASE_URL not set',
-            'components': {},
+            'full_url': 'Not set',
+            'template': template,
+            'components': {
+                'PGUSER': 'Not set',
+                'POSTGRES_PASSWORD' if is_public_url else 'PGPASSWORD': 'Not set',
+                'RAILWAY_TCP_PROXY_DOMAIN' if is_public_url else 'PGHOST': 'Not set',
+                'RAILWAY_TCP_PROXY_PORT' if is_public_url else 'PGPORT': 'Not set',
+                'PGDATABASE': 'Not set'
+            },
             'environment': 'Unknown'
         }
     
@@ -47,22 +54,36 @@ def parse_database_url(database_url):
         elif 'localhost' in parsed.hostname:
             environment = 'Local Development'
         
-        return {
-            'full_url': database_url,
-            'template': 'postgresql://${{PGUSER}}:${{PGPASSWORD}}@${{PGHOST}}:${{PGPORT}}/${{PGDATABASE}}',
-            'components': {
+        if is_public_url:
+            template = 'postgresql://${{PGUSER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_TCP_PROXY_DOMAIN}}:${{RAILWAY_TCP_PROXY_PORT}}/${{PGDATABASE}}'
+            components = {
+                'PGUSER': parsed.username or 'Not set',
+                'POSTGRES_PASSWORD': full_password,
+                'RAILWAY_TCP_PROXY_DOMAIN': parsed.hostname or 'Not set',
+                'RAILWAY_TCP_PROXY_PORT': str(parsed.port) if parsed.port else 'Not set',
+                'PGDATABASE': parsed.path.lstrip('/') if parsed.path else 'Not set'
+            }
+        else:
+            template = 'postgresql://${{PGUSER}}:${{PGPASSWORD}}@${{PGHOST}}:${{PGPORT}}/${{PGDATABASE}}'
+            components = {
                 'PGUSER': parsed.username or 'Not set',
                 'PGPASSWORD': full_password,
                 'PGHOST': parsed.hostname or 'Not set',
                 'PGPORT': str(parsed.port) if parsed.port else '5432',
                 'PGDATABASE': parsed.path.lstrip('/') if parsed.path else 'Not set'
-            },
+            }
+        
+        return {
+            'full_url': database_url,
+            'template': template,
+            'components': components,
             'environment': environment
         }
     except Exception as e:
+        template = 'Error parsing DATABASE_PUBLIC_URL' if is_public_url else 'Error parsing DATABASE_URL'
         return {
             'full_url': 'Error parsing URL',
-            'template': 'Error parsing DATABASE_URL',
+            'template': template,
             'components': {},
             'environment': 'Unknown'
         }
@@ -187,7 +208,9 @@ def logs():
     
     # Get database connection info
     database_url = os.environ.get('DATABASE_URL', '')
+    database_public_url = os.environ.get('DATABASE_PUBLIC_URL', '')
     db_info = parse_database_url(database_url)
+    db_public_info = parse_database_url(database_public_url, is_public_url=True)
     
     return render_template('logs.html',
                          logs=logs,
@@ -199,7 +222,8 @@ def logs():
                              'component': component_filter,
                              'date': date_filter
                          },
-                         db_info=db_info)
+                         db_info=db_info,
+                         db_public_info=db_public_info)
 
 # All data management is now integrated into the dashboard interface
 
