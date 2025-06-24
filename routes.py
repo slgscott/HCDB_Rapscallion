@@ -118,9 +118,7 @@ def dashboard():
     automation_status = automation_manager.get_status()
     script_status = automation_manager.get_script_status()
     
-    # Get recent logs
-    recent_logs = SystemLog.query.order_by(desc(SystemLog.timestamp)).limit(10).all()
-    # No formatting here - let template handle it
+    # Recent logs removed - use dedicated logs page instead
     
     # Get data counts
     crossing_count = CrossingTimes.query.count()
@@ -140,7 +138,6 @@ def dashboard():
     return render_template('dashboard.html',
                          automation_status=automation_status,
                          script_status=script_status,
-                         recent_logs=recent_logs,
                          crossing_count=crossing_count,
                          tide_count=tide_count,
                          weather_count=weather_count,
