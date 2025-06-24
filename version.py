@@ -2,7 +2,7 @@
 HCDB_Rapscallion Version Management
 """
 
-VERSION = "1.0.8"
+VERSION = "1.0.9"
 
 def get_version():
     """Get the current application version"""

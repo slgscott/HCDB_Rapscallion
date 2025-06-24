@@ -100,6 +100,8 @@ The application supports multiple deployment environments:
 
 ## Changelog
 
+- June 24, 2025. v1.0.9 - Added database connection info panel to System Logs page with toggle visibility
+- June 23, 2025. v1.0.8 - Fixed timezone display in system logs (BST conversion)
 - June 23, 2025. Initial setup
 
 ## User Preferences
