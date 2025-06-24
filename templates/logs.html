@@ -11,6 +11,52 @@
     </div>
 </div>
 
+<!-- Database Connection Info Panel -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-database me-2"></i>Database Connection Info
+    </div>
+    <div class="card-body">
+        <!-- Template String -->
+        <div class="mb-3">
+            <h6 class="text-muted">Template:</h6>
+            <code class="d-block p-2 bg-dark text-light rounded small">
+                DATABASE_URL={{ db_info.template }}
+            </code>
+        </div>
+        
+        <!-- Resolved String -->
+        <div class="mb-3">
+            <h6 class="text-muted">Resolved Connection String:</h6>
+            <code class="d-block p-2 bg-success text-light rounded small" style="word-break: break-all;">
+                {{ db_info.full_url[:50] }}{% if db_info.full_url|length > 50 %}...{% endif %}
+            </code>
+            <small class="text-muted">Full URL truncated for security</small>
+        </div>
+        
+        <!-- Component Breakdown -->
+        <div>
+            <h6 class="text-muted">Components:</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li><strong>PGUSER:</strong> <code>{{ db_info.components.PGUSER }}</code></li>
+                        <li><strong>PGHOST:</strong> <code>{{ db_info.components.PGHOST[:30] }}{% if db_info.components.PGHOST|length > 30 %}...{% endif %}</code></li>
+                        <li><strong>PGPORT:</strong> <code>{{ db_info.components.PGPORT }}</code></li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li><strong>PGPASSWORD:</strong> <code>{{ db_info.components.PGPASSWORD }}</code> <small class="text-muted">(masked)</small></li>
+                        <li><strong>PGDATABASE:</strong> <code>{{ db_info.components.PGDATABASE }}</code></li>
+                        <li><strong>Environment:</strong> <span class="badge bg-primary">{{ db_info.environment }}</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">

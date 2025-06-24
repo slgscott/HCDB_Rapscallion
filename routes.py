@@ -23,6 +23,49 @@ crossing_service = CrossingService()
 email_service = EmailService()
 system_logger = SystemLogger()
 
+def parse_database_url(database_url):
+    """Parse database URL and return connection components"""
+    if not database_url:
+        return {
+            'full_url': 'Not configured',
+            'template': 'DATABASE_URL not set',
+            'components': {},
+            'environment': 'Unknown'
+        }
+    
+    try:
+        parsed = urlparse(database_url)
+        
+        # Mask password for display
+        masked_password = parsed.password[:8] + '****' if parsed.password and len(parsed.password) > 8 else '****'
+        
+        # Determine environment
+        environment = 'Development (Neon)' if 'neon' in parsed.hostname else 'Production (Railway)'
+        if 'railway' in parsed.hostname:
+            environment = 'Production (Railway)'
+        elif 'localhost' in parsed.hostname:
+            environment = 'Local Development'
+        
+        return {
+            'full_url': database_url,
+            'template': 'postgresql://${{PGUSER}}:${{PGPASSWORD}}@${{PGHOST}}:${{PGPORT}}/${{PGDATABASE}}',
+            'components': {
+                'PGUSER': parsed.username or 'Not set',
+                'PGPASSWORD': masked_password,
+                'PGHOST': parsed.hostname or 'Not set',
+                'PGPORT': str(parsed.port) if parsed.port else '5432',
+                'PGDATABASE': parsed.path.lstrip('/') if parsed.path else 'Not set'
+            },
+            'environment': environment
+        }
+    except Exception as e:
+        return {
+            'full_url': 'Error parsing URL',
+            'template': 'Error parsing DATABASE_URL',
+            'components': {},
+            'environment': 'Unknown'
+        }
+
 # Add template functions directly to Jinja environment
 app.jinja_env.globals['format_datetime_uk'] = format_datetime_uk
 app.jinja_env.globals['format_date_uk'] = format_date_uk
@@ -144,6 +187,10 @@ def logs():
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render_template('logs_table.html', logs=logs)
     
+    # Get database connection info
+    database_url = os.environ.get('DATABASE_URL', '')
+    db_info = parse_database_url(database_url)
+    
     return render_template('logs.html',
                          logs=logs,
                          pagination=pagination,
@@ -153,7 +200,8 @@ def logs():
                              'level': level_filter,
                              'component': component_filter,
                              'date': date_filter
-                         })
+                         },
+                         db_info=db_info)
 
 # All data management is now integrated into the dashboard interface
 
