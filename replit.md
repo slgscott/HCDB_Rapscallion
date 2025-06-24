@@ -100,7 +100,11 @@ The application supports multiple deployment environments:
 
 ## Changelog
 
-- June 24, 2025. v1.0.9 - Added database connection info panel to System Logs page with toggle visibility
+- June 24, 2025. v1.0.10 - Improved System Logs page navigation structure
+  - Streamlined logs page navigation by removing redundant dashboard logs tab
+  - Added consistent main navigation bar to logs page with Upload Data, Automation, Logs, Admin, View Data
+  - Organized logs page with sub-navigation tabs for View Logs and Database Info
+  - Fixed navigation layout to match dashboard structure across all pages
 - June 23, 2025. v1.0.8 - Fixed timezone display in system logs (BST conversion)
 - June 23, 2025. Initial setup
 
