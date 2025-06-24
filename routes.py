@@ -3,6 +3,7 @@ import json
 import csv
 from datetime import datetime, timedelta, date, time
 from io import StringIO
+from urllib.parse import urlparse
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response
 from sqlalchemy import desc, asc, func
 from app import app, db
